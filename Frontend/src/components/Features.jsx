@@ -1,72 +1,87 @@
-import { useScrollReveal } from '../hooks/useScrollReveal';
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, Users, Zap, LayoutDashboard } from 'lucide-react';
+
 const features = [
-    {
-        icon: (
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <rect x="3" y="6" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <rect x="17" y="6" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <rect x="10" y="16" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M11 10h6M14 14v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-        ),
-        title: 'Drag-and-Drop Workflow Builder',
-        description:
-            'Design complex outreach sequences visually. Connect nodes, set delays, add conditions — no code required.',
-    },
-    {
-        icon: (
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <path d="M14 3l3 6 6 1-4.5 4 1 6.5L14 18l-5.5 2.5 1-6.5L5 10l6-1 3-6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-            </svg>
-        ),
-        title: 'AI-Powered Personalization',
-        description:
-            'Every message is uniquely crafted by AI using lead data — company info, role, recent activity — for genuine 1:1 outreach.',
-    },
-    {
-        icon: (
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <circle cx="14" cy="14" r="10" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M14 8v6l4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M9 21l-2 3M19 21l2 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-        ),
-        title: 'Human-like Automation',
-        description:
-            'Intelligent delays, randomized timing, and behavioral simulation ensure your outreach never looks like a bot.',
-    },
+  {
+    icon: Sparkles,
+    title: 'AI Message Generation',
+    description: 'Create hyper-personalized outreach instantly based on prospect data and your unique value proposition.',
+  },
+  {
+    icon: Users,
+    title: 'Bulk Lead Management',
+    description: 'Seamlessly upload, segment, and manage thousands of leads with our intelligent database structuring.',
+  },
+  {
+    icon: Zap,
+    title: 'Smart Workflow Automation',
+    description: 'Run campaigns with intelligent timing, multi-channel sequences, and auto-follow-ups that never sleep.',
+  },
+  {
+    icon: LayoutDashboard,
+    title: 'Analytics Dashboard',
+    description: 'Track campaign performance, response rates, and meeting conversions with real-time actionable insights.',
+  },
 ];
 
 export default function Features() {
-    const ref = useScrollReveal();
+  return (
+    <section className="py-32 relative text-white bg-[#0a0a0c] overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none" />
 
-    return (
-        <section className="section" id="features" ref={ref}>
-            <div className="container">
-                <div className="text-center flex flex-col items-center mb-[96px] reveal">
-                    <span className="section-label">Platform</span>
-                    <h2 className="section-title">Workflow automation built<br />for outbound teams at scale</h2>
-                    <p className="section-subtitle">
-                        Upload leads, design automated journeys, and let AI handle personalization and sending — all in one place.
-                    </p>
+      <div className="container mx-auto px-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mb-20 max-w-3xl mx-auto text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8">
+            <span className="w-2 h-2 rounded-full bg-accent-purple" />
+            <span className="text-xs font-semibold uppercase tracking-[0.1em] text-white/80">Capabilities</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.03em] mb-6 leading-[1.1]">
+            Everything you need to <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[#737373]">scale your outreach.</span>
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-6xl mx-auto">
+          {features.map((feature, idx) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: 0.1 * idx, ease: "easeOut" }}
+                className="group relative p-8 md:p-12 rounded-[2rem] bg-[#0d0d12] border border-white/5 overflow-hidden transition-colors hover:border-white/10"
+              >
+                {/* Animated border glow on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-50" />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {features.map((feat, i) => (
-                        <div
-                            key={feat.title}
-                            className={`glass-panel reveal reveal-delay-${i + 1} p-12 transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_16px_48px_#000000cc,_0_0_40px_#a855f70d] hover:border-white/20 before:absolute before:inset-x-0 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:opacity-50`}
-                        >
-                            <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-white mb-8 transition-all duration-300 group-hover:scale-105 group-hover:border-[#f97316]/40 group-hover:shadow-[0_0_24px_#f9731633] group-hover:text-[#f97316]">
-                                {feat.icon}
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4 tracking-[-0.02em] text-white">{feat.title}</h3>
-                            <p className="text-base text-white/70 leading-[1.6]">{feat.description}</p>
-                        </div>
-                    ))}
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-8 border border-white/5 group-hover:bg-white/[0.06] transition-colors">
+                    <Icon className="w-6 h-6 text-white/90" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-white mb-4 tracking-[-0.01em]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-[#a1a1aa] leading-relaxed text-lg font-light">
+                    {feature.description}
+                  </p>
                 </div>
-            </div>
-        </section>
-    );
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
 }
