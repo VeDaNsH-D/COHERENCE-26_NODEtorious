@@ -7,8 +7,9 @@ const http = require("http");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth_routes");
 const workflowRunsRoutes = require("./routes/workflowRuns.routes");
+const messagesRoutes = require("./routes/messages.routes");
 const workflowCollaboration = require("./sockets/workflowCollaboration");
-const { initWorker } = require("./workers/jobWorkers");
+const { initWorker } = require("./workers/jobWorker");
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +32,9 @@ app.use("/api/auth", authRoutes);
 
 /* Workflow routes */
 app.use("/api", workflowRunsRoutes);
+
+/* Messages routes */
+app.use("/api/messages", messagesRoutes);
 
 /* Initialize Socket.IO for real-time collaboration */
 const io = workflowCollaboration(server);

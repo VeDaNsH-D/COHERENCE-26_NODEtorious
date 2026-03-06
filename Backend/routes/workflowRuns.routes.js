@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const workflowEngine = require('../services/workflowEngine');
-const WorkflowRun = require('../models/WorkflowRun');
+const WorkflowRun = require('../schemas/workflow_run_schema');
 
 /**
  * @route POST /api/workflows/:workflowId/start
