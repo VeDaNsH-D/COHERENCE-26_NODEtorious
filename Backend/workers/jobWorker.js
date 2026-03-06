@@ -29,7 +29,11 @@ const initWorker = () => {
   });
 
   worker.on('error', err => {
-    console.error(`[JobWorker] ❌ Worker connection error:`, err);
+    if (err.code === 'ECONNREFUSED') {
+      console.error(`[JobWorker] ❌ Worker connection error: Redis is not running or accessible at ${err.address || 'localhost'}:${err.port || 6379}. Please start Redis.`);
+    } else {
+      console.error(`[JobWorker] ❌ Worker connection error:`, err);
+    }
   });
 
   console.log('[JobWorker] 👷 Workflow job worker initialized and listening for jobs.');
