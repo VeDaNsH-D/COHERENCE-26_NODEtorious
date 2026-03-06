@@ -1,7 +1,7 @@
-const Workflow = require('../models/Workflow');
-const WorkflowRun = require('../models/WorkflowRun');
-const Lead = require('../models/Lead');
-const Message = require('../models/Message');
+const Workflow = require('../schemas/workflow_schema');
+const WorkflowRun = require('../schemas/workflow_run_schema');
+const Lead = require('../schemas/lead_schema');
+const Message = require('../schemas/message_schema');
 const emailService = require('./emailService');
 const { scheduler } = require('./scheduler');
 
