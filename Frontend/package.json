@@ -23,7 +23,11 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1",
     "reactflow": "^11.11.4",
+<<<<<<< HEAD
     "socket.io-client": "^4.8.3",
+=======
+    "recharts": "^3.7.0",
+>>>>>>> fd1713bd3ebc20df20e01dc060f791e6b6317090
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1"
   },
