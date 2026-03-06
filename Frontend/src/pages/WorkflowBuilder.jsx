@@ -17,6 +17,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import workflowsService from '../services/workflowsService';
+import { socket } from '../utils/socket';
 
 const DND_NODE_TYPE = 'application/x-workflow-node';
 
@@ -823,6 +824,7 @@ function WorkflowBuilderContent() {
     )
   );
   const [activeResizer, setActiveResizer] = useState(null);
+  const isSocketUpdate = useRef(false);
 
   const flowWrapperRef = useRef(null);
   const layoutRef = useRef(null);
@@ -980,6 +982,108 @@ function WorkflowBuilderContent() {
 
     loadWorkflow(workflowId);
   }, [loadWorkflow, resetBuilder, workflowId]);
+
+  // Socket.IO Integration
+  useEffect(() => {
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!currentWorkflowId) return;
+
+    socket.emit('join-workflow', currentWorkflowId);
+
+    const handleNodeUpdated = (nodeData) => {
+      isSocketUpdate.current = true;
+      setNodes((nds) => {
+        const index = nds.findIndex((n) => n.id === nodeData.id);
+        if (index !== -1) {
+          const newNodes = [...nds];
+          newNodes[index] = nodeData;
+          return newNodes;
+        }
+        return [...nds, nodeData];
+      });
+      setTimeout(() => {
+        isSocketUpdate.current = false;
+      }, 50);
+    };
+
+    const handleEdgeUpdated = (edgeData) => {
+      isSocketUpdate.current = true;
+      setEdges((eds) => {
+         const index = eds.findIndex((e) => e.id === edgeData.id);
+         if (index !== -1) {
+           const newEdges = [...eds];
+           newEdges[index] = edgeData;
+           return newEdges;
+         }
+         return [...eds, edgeData];
+      });
+      setTimeout(() => {
+        isSocketUpdate.current = false;
+      }, 50);
+    };
+
+    const handleWorkflowSynced = (state) => {
+       isSocketUpdate.current = true;
+       // Only update if state actually changed to avoid unnecessary renders
+       setNodes((prevNodes) => {
+         if (JSON.stringify(prevNodes) !== JSON.stringify(state.nodes)) {
+           return state.nodes || [];
+         }
+         return prevNodes;
+       });
+       setEdges((prevEdges) => {
+         if (JSON.stringify(prevEdges) !== JSON.stringify(state.edges)) {
+           return state.edges || [];
+         }
+         return prevEdges;
+       });
+       // Need to reset the flag after a short delay to allow React state updates to process
+       setTimeout(() => {
+         isSocketUpdate.current = false;
+       }, 50);
+    };
+
+    socket.on('node-updated', handleNodeUpdated);
+    socket.on('edge-updated', handleEdgeUpdated);
+    socket.on('workflow-synced', handleWorkflowSynced);
+
+    return () => {
+      socket.emit('leave-workflow', currentWorkflowId);
+      socket.off('node-updated', handleNodeUpdated);
+      socket.off('edge-updated', handleEdgeUpdated);
+      socket.off('workflow-synced', handleWorkflowSynced);
+    };
+  }, [currentWorkflowId, setNodes, setEdges]);
+
+  // Effect to emit workflow sync on node/edge changes
+  useEffect(() => {
+    if (isSocketUpdate.current) {
+      // The state update originated from a socket event, so we don't emit
+      // The handleWorkflowSynced resets it, but just in case
+      return;
+    }
+
+    if (currentWorkflowId && socket.connected) {
+      // Small debounce to avoid flooding
+      const timeoutId = setTimeout(() => {
+        if (!isSocketUpdate.current) {
+          socket.emit('workflow-sync', {
+            workflowId: currentWorkflowId,
+            state: { nodes, edges }
+          });
+        }
+      }, 150);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [nodes, edges, currentWorkflowId]);
 
   const spliceNodeIntoEdge = useCallback(
     (candidate, nodeId) => {
@@ -1231,6 +1335,18 @@ function WorkflowBuilderContent() {
     [navigate, setEdges, setNodes]
   );
 
+  const handleShareWorkflow = useCallback(() => {
+    if (!currentWorkflowId) {
+      setErrorMessage('Please save the workflow before sharing.');
+      return;
+    }
+
+    const shareUrl = `${window.location.origin}/workflows?id=${currentWorkflowId}`;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => setSuccessMessage('Share link copied to clipboard!'))
+      .catch(() => setErrorMessage('Failed to copy link.'));
+  }, [currentWorkflowId]);
+
   const handleSaveWorkflow = useCallback(async () => {
     if (!workflowName.trim()) {
       setErrorMessage('Please enter a workflow name before saving.');
@@ -1407,6 +1523,15 @@ function WorkflowBuilderContent() {
                 className="rounded-lg border border-white/12 bg-white/8 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/25 hover:text-white"
               >
                 Fit
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleShareWorkflow}
+                className="rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent transition hover:bg-accent/20 hover:border-accent/60"
+                title="Copy link to collaborate"
+              >
+                Invite
               </button>
 
               <button
