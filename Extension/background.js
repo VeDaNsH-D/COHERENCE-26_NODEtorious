@@ -2,6 +2,32 @@
 
 const API_BASE_URL = 'http://localhost:8000'; // Update to your FastAPI backend
 
+// Simple storage keys used in this worker
+const STORAGE_KEYS = {
+    LEADS: 'intelligenceScout_leads',
+};
+
+// Lightweight logger – writes events to console and optional activityLog in storage
+function logAction(eventName, payload = {}) {
+    const entry = {
+        event: eventName,
+        payload,
+        timestamp: new Date().toISOString(),
+    };
+
+    try {
+        console.log('[IntelligenceScout]', entry);
+        chrome.storage?.local.get(['activityLog'], (result) => {
+            const log = result.activityLog || [];
+            log.push(entry);
+            chrome.storage.local.set({ activityLog: log });
+        });
+    } catch (e) {
+        // Swallow logging errors to avoid breaking the worker
+        console.warn('Log action failed', e);
+    }
+}
+
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'enrollLead') {
@@ -100,20 +126,22 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
 });
 
-// Periodic task: Clean up old activity logs
-chrome.alarms.create('cleanupLogs', { periodInMinutes: 60 });
+// Periodic task: Clean up old activity logs (guarded against missing alarms API)
+if (chrome.alarms && chrome.alarms.create) {
+    chrome.alarms.create('cleanupLogs', { periodInMinutes: 60 });
 
-chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === 'cleanupLogs') {
-        chrome.storage.local.get(['activityLog'], (result) => {
-            const log = result.activityLog || [];
-            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-            
-            const filtered = log.filter(entry => {
-                return new Date(entry.timestamp) > oneWeekAgo;
+    chrome.alarms.onAlarm.addListener((alarm) => {
+        if (alarm.name === 'cleanupLogs') {
+            chrome.storage.local.get(['activityLog'], (result) => {
+                const log = result.activityLog || [];
+                const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                
+                const filtered = log.filter(entry => {
+                    return new Date(entry.timestamp) > oneWeekAgo;
+                });
+                
+                chrome.storage.local.set({ activityLog: filtered });
             });
-            
-            chrome.storage.local.set({ activityLog: filtered });
-        });
-    }
-});
+        }
+    });
+}

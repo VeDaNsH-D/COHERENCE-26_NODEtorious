@@ -21,12 +21,20 @@ const { notFound, errorHandler } = require("./middleware/error_middleware");
 
 const app = express();
 const server = http.createServer(app);
+const passport = require("./config/passport");
+const googleAuthRoutes = require("./routes/googleAuth");
 
 /* Middleware */
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
+<<<<<<< HEAD
 
+=======
+app.use("/api/chatbot", chatbotRoutes);
+app.use(passport.initialize());
+app.use("/auth", googleAuthRoutes);
+>>>>>>> 37f651f911fa637e614bd48239fd090a33cffee1
 /* Validate required environment variables */
 validateEnv();
 
