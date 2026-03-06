@@ -2,6 +2,13 @@
 
 const API_BASE_URL = 'http://localhost:8000'; // Update to your FastAPI backend
 
+// Storage keys
+const STORAGE_KEYS = {
+    SETTINGS: 'intelligenceScout_settings',
+    LEADS: 'intelligenceScout_leads',
+    ACTIVITY_LOG: 'activityLog'
+};
+
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'enrollLead') {
@@ -54,6 +61,21 @@ async function enrollLeadToWorkflow(leadData) {
         console.error('Failed to enroll lead:', error);
         throw error;
     }
+}
+
+// Log action for analytics
+function logAction(actionType, data) {
+    chrome.storage.local.get(['activityLog'], (result) => {
+        const log = result.activityLog || [];
+        log.push({
+            action: actionType,
+            data: data,
+            timestamp: new Date().toISOString()
+        });
+        // Keep only last 1000 entries
+        const trimmedLog = log.slice(-1000);
+        chrome.storage.local.set({ activityLog: trimmedLog });
+    });
 }
 
 // Get stored leads for website sync

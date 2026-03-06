@@ -1,9 +1,12 @@
 // Extension Configuration
 // Update these values to match your setup
 
-module.exports = {
+// Note: This file uses global variables instead of module.exports
+// because Chrome extensions don't support CommonJS modules
+
+const CONFIG = {
     // FastAPI Backend
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
+    API_BASE_URL: 'http://localhost:8000',
     
     // LinkedIn Configuration
     LINKEDIN_PROFILE_REGEX: /linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/,
@@ -29,6 +32,7 @@ module.exports = {
     // Storage keys
     STORAGE_KEYS: {
         SETTINGS: 'intelligenceScout_settings',
+        LEADS: 'intelligenceScout_leads',
         ACTIVITY_LOG: 'activityLog',
         CACHED_INSIGHTS: 'cachedInsights',
         USER_PREFERENCES: 'userPreferences'
