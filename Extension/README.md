@@ -1,34 +1,34 @@
 # Intelligence Scout - AuraReach Extension
 
-🎯 **Smart Lead Capture + AI-Powered Outreach Recommendations + Website Sync**
+**Smart Lead Capture + AI-Powered Outreach Recommendations + Website Sync**
 
 A Chrome extension that brings the power of AI-driven lead intelligence directly into LinkedIn, inspired by Apollo.io but tailored for your AuraReach automation platform.
 
-## ✨ New Features: Lead Collection & Website Sync
+## New Features: Lead Collection & Website Sync
 
-### 1. **Local Lead Storage** 💾
+### 1. **Local Lead Storage** 
 - **Save to Collection**: Capture leads without immediately sending them
 - **Local Storage**: All data stays on your computer until you choose to sync
 - **Batch Processing**: Review and organize leads before bulk import
 
-### 2. **Website Integration** 🔄
+### 2. **Website Integration** 
 - **One-Click Import**: Pull captured leads directly into your website
 - **Bulk Sync**: Import multiple leads at once to your database
 - **Real-time Connection**: Extension communicates with your website seamlessly
 
-### 3. **Enhanced UI** 📱
+### 3. **Enhanced UI** 
 - **Tabbed Interface**: Separate tabs for Capture, Leads, and Settings
 - **Lead Management**: View, remove, and organize captured leads
 - **Sync Status**: See which leads have been imported to your website
 
 ## Features
 
-### 1. **One-Click Lead Enrollment** 📌
+### 1. **One-Click Lead Enrollment** 
 - Injects a "Send to AuraReach" button directly on LinkedIn profiles
 - Captures lead name, role, company, and profile URL in one click
 - No data copy-pasting required—pure magic!
 
-### 2. **AI-Powered Insights** 🧠
+### 2. **AI-Powered Insights** 
 - Analyzes the lead's role and company to recommend optimal outreach strategy
 - Suggests three engagement paths:
   - **Technical**: Product-focused, technical capability discussion
@@ -36,7 +36,7 @@ A Chrome extension that brings the power of AI-driven lead intelligence directly
   - **Executive**: Strategic value, transformation narrative
 - Integrates with your FastAPI backend for dynamic recommendations
 
-### 3. **Human-Like Behavior Detection** ⚠️
+### 3. **Human-Like Behavior Detection** 
 - **Send Timing Meter**: Analyzes current time, day of week, and behavioral patterns
 - Warns if sending feels "robotic" (e.g., 100 emails at 3 AM)
 - Suggests optimal delay times: "Wait until 2:15 PM to look human"
@@ -63,7 +63,7 @@ cd Extension
 3. Click **"Load unpacked"**
 4. Select the `Extension` folder from your project
 
-✅ The extension is now installed!
+The extension is now installed!
 
 ### Step 3: Configure Backend URL
 Edit `popup.js` and update:
@@ -92,7 +92,7 @@ const API_BASE_URL = 'https://api.aurareach.com';
 5. **Click "Send to AuraReach"** → Lead enrolled in your workflow!
 
 ### Direct LinkedIn Button:
-- A "✨ Send to AuraReach" button is injected directly on the profile
+- A "Send to AuraReach" button is injected directly on the profile
 - Click it for instant enrollment without opening the popup
 
 ---
@@ -342,12 +342,6 @@ async def generate_insight(lead_data: dict):
 
 ---
 
-## License
-
-Built with ❤️ for your hackathon project.
-
----
-
 ## Support
 
 For issues or questions:
@@ -357,6 +351,6 @@ For issues or questions:
 
 ---
 
-**Ready to make lead capture feel like magic?** 🚀
+**Ready to make lead capture feel like magic?** 
 
 Install the extension now and watch your workflow automation come alive!
