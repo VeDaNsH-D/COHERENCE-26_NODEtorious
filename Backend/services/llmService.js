@@ -25,66 +25,75 @@ async function generateResponse(prompt) {
  * Build a prompt for personalized email generation (mirrors emailGen.py logic)
  */
 function buildEmailPrompt(lead, insights, campaignContext, emailType) {
+    const leadName = lead.name ? lead.name.split(' ')[0] : '';
     let emailInstruction = "";
+    let toneGuidance = "";
 
     switch (emailType) {
         case "cold_email":
-            emailInstruction = "Write the first cold outreach email.";
+            emailInstruction = "Write the first cold outreach email. This is the very first time we are reaching out — make a strong, personalized first impression.";
+            toneGuidance = "Be warm and curious. Reference something specific about their role or industry to show you did your homework. Lead with a relevant pain point, not a product pitch.";
             break;
         case "followup_1":
-            emailInstruction = "Write a polite follow-up email if the lead has not replied.";
+            emailInstruction = "Write a polite first follow-up email. The lead has not replied to the initial outreach.";
+            toneGuidance = "Be understanding and low-pressure. Add new value (e.g. a relevant insight or stat) rather than just repeating the first email. Keep it shorter than the initial email.";
             break;
         case "followup_2":
-            emailInstruction = "Write a short second follow-up email reminding the lead.";
+            emailInstruction = "Write a brief second follow-up email. The lead has not replied to two previous emails.";
+            toneGuidance = "Be concise and direct. Offer a specific, easy next step (e.g. 'Would a 10-minute call on Thursday work?'). Show respect for their time.";
             break;
         case "final_followup":
-            emailInstruction = "Write a final short follow-up email before closing the outreach.";
+            emailInstruction = "Write a final follow-up email before closing the outreach loop.";
+            toneGuidance = "Be graceful and confident. Make it clear this is the last email. Leave the door open without being pushy. A brief 2-3 sentence email works best.";
             break;
         default:
             emailInstruction = "Write a professional outreach email.";
+            toneGuidance = "Be professional and personalized.";
     }
 
-    return `You are an expert B2B sales outreach assistant.
+    const insightBlock = (insights || []).length > 0
+        ? `\nAI INSIGHTS ABOUT THIS LEAD (use these to personalize):\n${insights.join("\n")}\n`
+        : '';
 
-${emailInstruction}
+    return `${emailInstruction}
 
 -------------------------
-LEAD DETAILS
+ABOUT THE RECIPIENT
 -------------------------
-Role: ${lead.role || "Unknown"}
+Name: ${leadName || "(not available — do NOT use a placeholder name)"}
+Role/Title: ${lead.role || "Unknown"}
+Seniority: ${lead.seniority || "Unknown"}
+Company: ${lead.company || "Unknown"}
 Industry: ${lead.industry || "Unknown"}
 Company Size: ${lead.company_size || "Unknown"}
 Lead Source: ${lead.lead_source || "Unknown"}
-Company Name: ${lead.company || "Unknown"}
 Lead Score: ${lead.lead_score || "Unknown"}
+${insightBlock}
+-------------------------
+WHAT WE OFFER
+-------------------------
+Team/Sender: ${campaignContext.team_name || "Our Team"}
+Product: ${campaignContext.product_name || "Our Product"}
+What it does: ${campaignContext.product_description || "A platform to help businesses grow"}
+Pain point we solve: ${campaignContext.pain_point || "improving efficiency"}
+Desired outcome: ${campaignContext.goal || "a short introductory call"}
 
 -------------------------
-AI INSIGHTS
+TONE & STYLE
 -------------------------
-${(insights || []).join("\n")}
+${toneGuidance}
 
 -------------------------
-OUR TEAM
+RULES (MUST FOLLOW)
 -------------------------
-Team Name: ${campaignContext.team_name || "Unknown"}
-Product Name: ${campaignContext.product_name || "Unknown"}
-Product Description: ${campaignContext.product_description || "Unknown"}
-
--------------------------
-CAMPAIGN CONTEXT
--------------------------
-Pain Point: ${campaignContext.pain_point || "Unknown"}
-Goal: ${campaignContext.goal || "Unknown"}
-
--------------------------
-CONSTRAINTS
--------------------------
-- Maximum 80 words
-- Friendly and conversational tone
-- Personalized to the lead
-- Avoid spammy language
-- End with a call-to-action
-- Return ONLY the email body text, no subject line, no labels
+- ${leadName ? `Address the recipient as "${leadName}"` : "Do NOT use any name greeting — start with a contextual hook instead"}
+- 100-150 words maximum
+- Write like a real human, not a bot — vary sentence length, be natural
+- NO generic openers like "I hope this email finds you well" or "I wanted to reach out"
+- Reference their specific industry (${lead.industry || 'their field'}) or role (${lead.role || 'their position'}) naturally
+- One clear call-to-action at the end
+- Sign off with just a first name (use "Best" or "Cheers" — no "Regards" or "Sincerely")
+- Return ONLY the email body text — no subject line, no labels, no markdown formatting
 `;
 }
 
@@ -92,32 +101,41 @@ CONSTRAINTS
  * Generate a fallback email when LLM is unavailable
  */
 function fallbackEmail(lead, campaignContext, emailType) {
-    const name = lead.company || "your team";
+    const firstName = lead.name ? lead.name.split(' ')[0] : '';
+    const company = lead.company || "your team";
     const role = lead.role || "team";
     const product = campaignContext.product_name || "our platform";
     const pain = (campaignContext.pain_point || "improving pipeline visibility").toLowerCase();
     const goal = (campaignContext.goal || "a short intro call").toLowerCase();
+    const greeting = firstName ? `Hi ${firstName},` : `Hi there,`;
 
     const templates = {
         cold_email:
-            `Hi, noticed ${name} is growing and thought this might help your ${role} team. ` +
-            `${product} helps with ${pain}. ` +
-            `Would you be open to a quick chat this week to see if it fits your goals?`,
+            `${greeting}\n\n` +
+            `I came across ${company} and noticed your ${role} team might be navigating challenges around ${pain}. ` +
+            `We built ${product} specifically to help with that — and teams in your space have seen real results.\n\n` +
+            `Would you be open to a quick 15-minute chat this week to see if it's a fit?\n\n` +
+            `Cheers`,
         followup_1:
-            `Hi, following up in case my last note got buried. ` +
-            `We help teams like ${name} improve outcomes around ${pain}. ` +
-            `Open to a brief 15-minute conversation?`,
+            `${greeting}\n\n` +
+            `Just circling back on my earlier note. I know things get busy, so I'll keep this short — ` +
+            `${product} has been helping teams like ${company} tackle ${pain}, and I think there could be a fit.\n\n` +
+            `Worth a brief conversation?\n\n` +
+            `Best`,
         followup_2:
-            `Quick follow-up: if ${pain} is a priority this quarter, ` +
-            `${product} might be useful for your team at ${name}. ` +
-            `Would a short call be worth it?`,
+            `${greeting}\n\n` +
+            `If ${pain} is still on your radar this quarter, I'd love to show you how ${product} could help your team at ${company}. ` +
+            `Happy to keep it to 10 minutes.\n\n` +
+            `Cheers`,
         final_followup:
-            `Final note from me. If now is not the right time, no worries. ` +
-            `If helpful, I can share a short overview of how ${product} supports teams like ${name}. ` +
-            `Interested in ${goal}?`,
+            `${greeting}\n\n` +
+            `This will be my last note — I don't want to clutter your inbox. ` +
+            `If ${product} ever becomes relevant for ${company}, I'd be happy to chat. No pressure at all.\n\n` +
+            `Wishing you and the team all the best.\n\n` +
+            `Best`,
     };
 
-    return templates[emailType] || `Hi, I'd love to connect about how ${product} can help ${name}. Would you be open to a quick chat?`;
+    return templates[emailType] || `${greeting}\n\nI'd love to connect about how ${product} can help ${company}. Would you be open to a quick chat?\n\nCheers`;
 }
 
 /**
@@ -137,34 +155,48 @@ async function generateEmail(lead, insights, campaignContext, emailType) {
             messages: [
                 {
                     role: "system",
-                    content: "You are a B2B sales email writer. Return ONLY the email body text. No subject line, no labels, no markdown formatting."
+                    content: `You are a top-performing B2B sales development rep who writes highly personalized, concise outreach emails. Your emails consistently get replies because they:
+- Feel like they were written by a real person who researched the recipient
+- Lead with relevance to the recipient's world, not a product pitch
+- Are short, scannable, and respect the reader's time
+- Have a natural, conversational tone — not corporate or salesy
+
+Return ONLY the email body text. No subject line, no "Subject:" label, no markdown, no asterisks, no bullet points.`
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.7,
-            max_tokens: 300,
+            temperature: 0.6,
+            max_tokens: 400,
         });
 
         const body = (completion.choices[0].message.content || "").trim();
         if (!body) {
             console.warn("[LLMService] Llama3 returned empty response, using fallback");
             return {
-                subject: generateSubject(lead, campaignContext, emailType),
+                subject: await generateSubject(lead, campaignContext, emailType),
                 body: fallbackEmail(lead, campaignContext, emailType),
             };
         }
 
+        // Clean up any stray markdown or labels the model might have added
+        const cleanBody = body
+            .replace(/^(Subject|Re|Email|Body)\s*[:：].*\n?/gim, '')
+            .replace(/\*\*/g, '')
+            .replace(/^#+\s*/gm, '')
+            .trim();
+
         return {
-            subject: generateSubject(lead, campaignContext, emailType),
-            body,
+            subject: await generateSubject(lead, campaignContext, emailType),
+            body: cleanBody,
         };
     } catch (error) {
         console.error("[LLMService] Email generation failed:", error.message);
+        const fallbackSubject = `${campaignContext.product_name || 'Our solution'} for ${lead.company || 'your team'}`;
         return {
-            subject: generateSubject(lead, campaignContext, emailType),
+            subject: fallbackSubject,
             body: fallbackEmail(lead, campaignContext, emailType),
         };
     }
@@ -173,21 +205,52 @@ async function generateEmail(lead, insights, campaignContext, emailType) {
 /**
  * Generate a contextual subject line
  */
-function generateSubject(lead, campaignContext, emailType) {
+async function generateSubject(lead, campaignContext, emailType) {
     const product = campaignContext.product_name || "our solution";
     const company = lead.company || "";
+    const role = lead.role || "";
+    const industry = lead.industry || "";
 
+    try {
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.1-8b-instant",
+            messages: [
+                {
+                    role: "system",
+                    content: "Generate a single short email subject line (max 8 words). No quotes, no labels, no explanation. Just the subject line text."
+                },
+                {
+                    role: "user",
+                    content: `Write a subject line for a ${emailType.replace('_', ' ')} email.
+Recipient: ${role} at ${company} in ${industry}.
+Product: ${product}.
+Make it specific, curiosity-driving, and NOT spammy. No generic phrases like "Quick question" or "Touching base".`
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 30,
+        });
+
+        const subject = (completion.choices[0].message.content || "").trim().replace(/^["']|["']$/g, '');
+        if (subject && subject.length > 3 && subject.length < 80) {
+            return subject;
+        }
+    } catch (err) {
+        console.warn("[LLMService] Subject generation failed, using fallback:", err.message);
+    }
+
+    // Fallback subjects
     switch (emailType) {
         case "cold_email":
-            return company ? `Quick question for ${company}` : `Quick question about ${product}`;
+            return company ? `${role ? role + 's' : 'Teams'} at ${company} + ${product}` : `Idea for your ${role || 'team'}`;
         case "followup_1":
-            return `Following up — ${product}`;
+            return `Re: ${product} for ${company || 'your team'}`;
         case "followup_2":
-            return company ? `Still interested, ${company}?` : `Checking in — ${product}`;
+            return company ? `Worth 10 min, ${company}?` : `Quick thought on ${product}`;
         case "final_followup":
-            return `Last note from us`;
+            return `Closing the loop`;
         default:
-            return `${product} — Let's connect`;
+            return `${product} for ${company || 'your team'}`;
     }
 }
 

@@ -42,62 +42,75 @@ def get_client():
 
 def build_prompt(lead, insights, campaign_context, email_type):
 
+    lead_name = lead.get('name', '')
+    first_name = lead_name.split(' ')[0] if lead_name else ''
     email_instruction = ""
+    tone_guidance = ""
 
     if email_type == "cold_email":
-        email_instruction = "Write the first cold outreach email."
+        email_instruction = "Write the first cold outreach email. This is the very first time we are reaching out — make a strong, personalized first impression."
+        tone_guidance = "Be warm and curious. Reference something specific about their role or industry to show you did your homework. Lead with a relevant pain point, not a product pitch."
 
     elif email_type == "followup_1":
-        email_instruction = "Write a polite follow-up email if the lead has not replied."
+        email_instruction = "Write a polite first follow-up email. The lead has not replied to the initial outreach."
+        tone_guidance = "Be understanding and low-pressure. Add new value (e.g. a relevant insight or stat) rather than just repeating the first email. Keep it shorter than the initial email."
 
     elif email_type == "followup_2":
-        email_instruction = "Write a short second follow-up email reminding the lead."
+        email_instruction = "Write a brief second follow-up email. The lead has not replied to two previous emails."
+        tone_guidance = "Be concise and direct. Offer a specific, easy next step (e.g. 'Would a 10-minute call on Thursday work?'). Show respect for their time."
 
     elif email_type == "final_followup":
-        email_instruction = "Write a final short follow-up email before closing the outreach."
+        email_instruction = "Write a final follow-up email before closing the outreach loop."
+        tone_guidance = "Be graceful and confident. Make it clear this is the last email. Leave the door open without being pushy. A brief 2-3 sentence email works best."
+
+    insight_block = ""
+    if insights:
+        insight_block = f"\nAI INSIGHTS ABOUT THIS LEAD (use these to personalize):\n{chr(10).join(insights)}\n"
+
+    name_rule = f'Address the recipient as "{first_name}"' if first_name else 'Do NOT use any name greeting — start with a contextual hook instead'
+    role_val = lead.get('role', 'their position')
+    industry_val = lead.get('industry', 'their field')
 
     prompt = f"""
-You are an expert B2B sales outreach assistant.
-
 {email_instruction}
 
 -------------------------
-LEAD DETAILS
+ABOUT THE RECIPIENT
 -------------------------
-Role: {lead.get('role', 'Unknown')}
+Name: {first_name or '(not available — do NOT use a placeholder name)'}
+Role/Title: {lead.get('role', 'Unknown')}
+Seniority: {lead.get('seniority', 'Unknown')}
+Company: {lead.get('company_name', 'Unknown')}
 Industry: {lead.get('industry', 'Unknown')}
 Company Size: {lead.get('company_size', 'Unknown')}
 Lead Source: {lead.get('lead_source', 'Unknown')}
-Company Name: {lead.get('company_name', 'Unknown')}
 Lead Score: {lead.get('lead_score', 'Unknown')}
+{insight_block}
+-------------------------
+WHAT WE OFFER
+-------------------------
+Team/Sender: {campaign_context.get('team_name', 'Our Team')}
+Product: {campaign_context.get('product_name', 'Our Product')}
+What it does: {campaign_context.get('product_description', 'A platform to help businesses grow')}
+Pain point we solve: {campaign_context.get('pain_point', 'improving efficiency')}
+Desired outcome: {campaign_context.get('goal', 'a short introductory call')}
 
 -------------------------
-AI INSIGHTS
+TONE & STYLE
 -------------------------
-{chr(10).join(insights or [])}
+{tone_guidance}
 
 -------------------------
-OUR TEAM
+RULES (MUST FOLLOW)
 -------------------------
-Team Name: {campaign_context.get('team_name', 'Unknown')}
-Product Name: {campaign_context.get('product_name', 'Unknown')}
-Product Description: {campaign_context.get('product_description', 'Unknown')}
-
--------------------------
-CAMPAIGN CONTEXT
--------------------------
-Pain Point: {campaign_context.get('pain_point', 'Unknown')}
-Goal: {campaign_context.get('goal', 'Unknown')}
-
--------------------------
-CONSTRAINTS
--------------------------
-- Maximum 80 words
-- Friendly and conversational tone
-- Personalized to the lead
-- Avoid spammy language
-- End with a call-to-action
-- Return only the email text
+- {name_rule}
+- 100-150 words maximum
+- Write like a real human, not a bot — vary sentence length, be natural
+- NO generic openers like "I hope this email finds you well" or "I wanted to reach out"
+- Reference their specific industry ({industry_val}) or role ({role_val}) naturally
+- One clear call-to-action at the end
+- Sign off with just a first name (use "Best" or "Cheers" — no "Regards" or "Sincerely")
+- Return ONLY the email body text — no subject line, no labels, no markdown formatting
 """
 
     return prompt
@@ -132,7 +145,8 @@ def is_quota_error(message):
 def get_retry_seconds(message):
     if not message:
         return None
-    match = re.search(r"retry in ([0-9]+(?:\.[0-9]+)?)s", message, flags=re.IGNORECASE)
+    match = re.search(
+        r"retry in ([0-9]+(?:\.[0-9]+)?)s", message, flags=re.IGNORECASE)
     if not match:
         return None
     try:
@@ -142,35 +156,46 @@ def get_retry_seconds(message):
 
 
 def fallback_email(lead, campaign_context, email_type):
-    name = lead.get("company_name", "your team")
+    lead_name = lead.get("name", "")
+    first_name = lead_name.split(" ")[0] if lead_name else ""
+    company = lead.get("company_name", "your team")
     role = lead.get("role", "team")
     product = campaign_context.get("product_name", "our platform")
-    pain = campaign_context.get("pain_point", "improving pipeline visibility")
-    goal = campaign_context.get("goal", "a short intro call")
+    pain = campaign_context.get(
+        "pain_point", "improving pipeline visibility").lower()
+    goal = campaign_context.get("goal", "a short intro call").lower()
+    greeting = f"Hi {first_name}," if first_name else "Hi there,"
 
     templates = {
         "cold_email": (
-            f"Hi, noticed {name} is growing and thought this might help your {role} team. "
-            f"{product} helps with {pain.lower()}. "
-            f"Would you be open to a quick chat this week to see if it fits your goals?"
+            f"{greeting}\n\n"
+            f"I came across {company} and noticed your {role} team might be navigating challenges around {pain}. "
+            f"We built {product} specifically to help with that — and teams in your space have seen real results.\n\n"
+            f"Would you be open to a quick 15-minute chat this week to see if it's a fit?\n\n"
+            f"Cheers"
         ),
         "followup_1": (
-            f"Hi, following up in case my last note got buried. "
-            f"We help teams like {name} improve outcomes around {pain.lower()}. "
-            f"Open to a brief 15-minute conversation?"
+            f"{greeting}\n\n"
+            f"Just circling back on my earlier note. I know things get busy, so I'll keep this short — "
+            f"{product} has been helping teams like {company} tackle {pain}, and I think there could be a fit.\n\n"
+            f"Worth a brief conversation?\n\n"
+            f"Best"
         ),
         "followup_2": (
-            f"Quick follow-up: if {pain.lower()} is a priority this quarter, "
-            f"{product} might be useful for your team at {name}. "
-            f"Would a short call be worth it?"
+            f"{greeting}\n\n"
+            f"If {pain} is still on your radar this quarter, I'd love to show you how {product} could help your team at {company}. "
+            f"Happy to keep it to 10 minutes.\n\n"
+            f"Cheers"
         ),
         "final_followup": (
-            f"Final note from me. If now is not the right time, no worries. "
-            f"If helpful, I can share a short overview of how {product} supports teams like {name}. "
-            f"Interested in {goal.lower()}?"
+            f"{greeting}\n\n"
+            f"This will be my last note — I don't want to clutter your inbox. "
+            f"If {product} ever becomes relevant for {company}, I'd be happy to chat. No pressure at all.\n\n"
+            f"Wishing you and the team all the best.\n\n"
+            f"Best"
         )
     }
-    return templates.get(email_type, "Could not generate email.")
+    return templates.get(email_type, f"{greeting}\n\nI'd love to connect about how {product} can help {company}. Would you be open to a quick chat?\n\nCheers")
 
 
 def generate_email(lead, insights, campaign_context, email_type, client):
@@ -237,7 +262,8 @@ campaign_context = {
 # ======================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate outreach emails with Gemini.")
+    parser = argparse.ArgumentParser(
+        description="Generate outreach emails with Gemini.")
     parser.add_argument(
         "--email-type",
         choices=EMAIL_TYPES,
@@ -258,16 +284,18 @@ def main():
     selected_types = EMAIL_TYPES if args.all else (args.email_type,)
     for email_type in selected_types:
         if quota_reached:
-            emails[email_type] = fallback_email(lead, campaign_context, email_type)
+            emails[email_type] = fallback_email(
+                lead, campaign_context, email_type)
             continue
 
-        generated, status = generate_email(lead, insights, campaign_context, email_type, client)
+        generated, status = generate_email(
+            lead, insights, campaign_context, email_type, client)
         if status == "quota":
             quota_reached = True
-            emails[email_type] = fallback_email(lead, campaign_context, email_type)
+            emails[email_type] = fallback_email(
+                lead, campaign_context, email_type)
         else:
             emails[email_type] = generated
-
 
     output = {
         "company_name": lead.get("company_name"),

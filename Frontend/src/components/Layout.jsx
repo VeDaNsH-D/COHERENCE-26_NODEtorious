@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isAuthPage = location.pathname === '/';
   const isWorkflowPage = location.pathname === '/workflows';
@@ -29,14 +30,10 @@ export default function Layout({ children }) {
                      #050505`,
       }}
     >
-      <Sidebar />
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="border-b border-white/[0.06] bg-black/30 backdrop-blur-xl px-6 py-3 flex items-center justify-between relative">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-500/[0.03] to-transparent pointer-events-none" />
-          <div className="flex items-center gap-3 relative z-10">
-            <img src="/scout-logo.svg" alt="Scout" className="h-7 w-7 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-            <h1 className="text-xl font-semibold text-gradient-accent">Scout</h1>
-          </div>
           <div className="flex items-center gap-3 relative z-10">
             <button className="p-2 hover:bg-white/[0.05] rounded-xl transition-all duration-200 text-white/40 hover:text-white/80">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

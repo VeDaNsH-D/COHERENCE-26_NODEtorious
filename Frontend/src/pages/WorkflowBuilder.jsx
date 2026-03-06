@@ -1040,13 +1040,13 @@ function WorkflowBuilderContent() {
     const handleEdgeUpdated = (edgeData) => {
       isSocketUpdate.current = true;
       setEdges((eds) => {
-         const index = eds.findIndex((e) => e.id === edgeData.id);
-         if (index !== -1) {
-           const newEdges = [...eds];
-           newEdges[index] = edgeData;
-           return newEdges;
-         }
-         return [...eds, edgeData];
+        const index = eds.findIndex((e) => e.id === edgeData.id);
+        if (index !== -1) {
+          const newEdges = [...eds];
+          newEdges[index] = edgeData;
+          return newEdges;
+        }
+        return [...eds, edgeData];
       });
       setTimeout(() => {
         isSocketUpdate.current = false;
@@ -1054,24 +1054,24 @@ function WorkflowBuilderContent() {
     };
 
     const handleWorkflowSynced = (state) => {
-       isSocketUpdate.current = true;
-       // Only update if state actually changed to avoid unnecessary renders
-       setNodes((prevNodes) => {
-         if (JSON.stringify(prevNodes) !== JSON.stringify(state.nodes)) {
-           return state.nodes || [];
-         }
-         return prevNodes;
-       });
-       setEdges((prevEdges) => {
-         if (JSON.stringify(prevEdges) !== JSON.stringify(state.edges)) {
-           return state.edges || [];
-         }
-         return prevEdges;
-       });
-       // Need to reset the flag after a short delay to allow React state updates to process
-       setTimeout(() => {
-         isSocketUpdate.current = false;
-       }, 50);
+      isSocketUpdate.current = true;
+      // Only update if state actually changed to avoid unnecessary renders
+      setNodes((prevNodes) => {
+        if (JSON.stringify(prevNodes) !== JSON.stringify(state.nodes)) {
+          return state.nodes || [];
+        }
+        return prevNodes;
+      });
+      setEdges((prevEdges) => {
+        if (JSON.stringify(prevEdges) !== JSON.stringify(state.edges)) {
+          return state.edges || [];
+        }
+        return prevEdges;
+      });
+      // Need to reset the flag after a short delay to allow React state updates to process
+      setTimeout(() => {
+        isSocketUpdate.current = false;
+      }, 50);
     };
 
     socket.on('node-updated', handleNodeUpdated);
@@ -1631,7 +1631,7 @@ function WorkflowBuilderContent() {
               >
                 Fit
               </button>
-              
+
               <button
                 type="button"
                 onClick={handleShareWorkflow}
@@ -1930,8 +1930,8 @@ function WorkflowBuilderContent() {
                       <label
                         key={leadId}
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${isSelected
-                            ? 'border-emerald-500/50 bg-emerald-500/10'
-                            : 'border-white/8 bg-white/4 hover:border-white/18 hover:bg-white/8'
+                          ? 'border-emerald-500/50 bg-emerald-500/10'
+                          : 'border-white/8 bg-white/4 hover:border-white/18 hover:bg-white/8'
                           }`}
                       >
                         <input

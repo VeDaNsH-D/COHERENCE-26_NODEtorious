@@ -12,16 +12,33 @@
   ],
   "host_permissions": [
     "https://www.linkedin.com/*",
-    "http://localhost:8000/*"
+    "http://localhost:8000/*",
+    "http://localhost:5173/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.linkedin.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "matches": [
+        "*://*.linkedin.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
+    },
+    {
+      "matches": [
+        "http://localhost:5173/*",
+        "http://localhost:8000/*"
+      ],
+      "js": [
+        "aurareach-bridge.js"
+      ],
+      "run_at": "document_start"
     }
   ],
   "action": {

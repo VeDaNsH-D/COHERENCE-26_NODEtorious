@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import leadsService from '../services/leadsService';
 import { mockLeads } from '../utils/mockData';
+import ExtensionImportBanner from '../components/ExtensionImportBanner';
 
 export default function LeadUpload() {
   const [leads, setLeads] = useState([]);
@@ -20,6 +21,11 @@ export default function LeadUpload() {
 
   useEffect(() => {
     fetchLeads();
+
+    // Re-fetch when leads are imported from the extension
+    const onImported = () => fetchLeads();
+    window.addEventListener('leads-imported', onImported);
+    return () => window.removeEventListener('leads-imported', onImported);
   }, []);
 
   const fetchLeads = async () => {
@@ -206,8 +212,8 @@ export default function LeadUpload() {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-12 text-center transition cursor-pointer ${dragActive
-                ? 'border-accent bg-accent-soft'
-                : 'border-border-card bg-transparent hover:border-border-strong'
+              ? 'border-accent bg-accent-soft'
+              : 'border-border-card bg-transparent hover:border-border-strong'
               } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <input
@@ -373,8 +379,8 @@ export default function LeadUpload() {
                     onClick={() => handleGenerateWorkflow(selectedLead)}
                     disabled={workflowLoading}
                     className={`px-6 py-3 font-bold rounded-lg transition ${workflowLoading
-                        ? 'bg-accent/50 text-text-inverse cursor-not-allowed'
-                        : 'bg-accent hover:bg-accent-hover text-text-inverse'
+                      ? 'bg-accent/50 text-text-inverse cursor-not-allowed'
+                      : 'bg-accent hover:bg-accent-hover text-text-inverse'
                       }`}
                   >
                     {workflowLoading ? 'Generating Workflow...' : 'Generate Personalized Workflow ⚡'}

@@ -80,7 +80,11 @@ export default function Sidebar({ open, onToggle }) {
 
   return (
     <div
-      className="w-[72px] bg-black/40 backdrop-blur-xl border-r border-white/[0.06] flex flex-col h-screen relative"
+      className="bg-black/40 backdrop-blur-xl border-r border-white/[0.06] flex flex-col h-screen relative"
+      style={{
+        width: open ? 220 : 72,
+        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+      }}
     >
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -88,24 +92,44 @@ export default function Sidebar({ open, onToggle }) {
         <div className="absolute -bottom-20 -left-10 w-40 h-40 bg-blue-500/[0.04] rounded-full blur-3xl" />
       </div>
 
-      {/* Logo */}
-      <div className="p-4 flex items-center justify-center border-b border-white/[0.06] relative z-10">
-        <img src="/scout-logo.svg" alt="Scout" className="h-7 w-7 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+      {/* Logo + Toggle */}
+      <div className="p-4 flex items-center border-b border-white/[0.06] relative z-10"
+        style={{ justifyContent: open ? 'space-between' : 'center' }}
+      >
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <img src="/scout-logo.svg" alt="Scout" className="h-7 w-7 flex-shrink-0 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+          {open && (
+            <span className="text-lg font-semibold text-gradient-accent whitespace-nowrap">Scout</span>
+          )}
+        </div>
+        <button
+          onClick={onToggle}
+          className="p-1.5 hover:bg-white/[0.06] rounded-lg transition-all duration-200 text-white/40 hover:text-white/80 flex-shrink-0"
+          style={{ marginLeft: open ? 0 : undefined, position: open ? 'static' : 'absolute', right: open ? undefined : -12, top: open ? undefined : 16, background: open ? 'transparent' : 'rgba(0,0,0,0.6)', border: open ? 'none' : '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}
+          title={open ? 'Collapse sidebar' : 'Expand sidebar'}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto relative z-10">
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto overflow-x-hidden relative z-10">
         {menuItems.map((item) => (
           <div key={item.path} className="relative">
             <Link
               to={item.path}
-              onMouseEnter={() => setHoveredItem(item.path)}
+              onMouseEnter={() => !open && setHoveredItem(item.path)}
               onMouseLeave={() => setHoveredItem(null)}
-              className={`flex items-center justify-center w-full p-2.5 rounded-xl transition-all duration-200 relative group
+              className={`flex items-center w-full p-2.5 rounded-xl transition-all duration-200 relative group
                 ${isActive(item.path)
                   ? 'bg-orange-500/20 text-orange-400 border border-orange-400/30 shadow-[0_0_15px_rgba(249,115,22,0.2)]'
                   : 'text-white/40 hover:text-white/80 hover:bg-white/[0.05] border border-transparent'
                 }`}
+              style={{ justifyContent: open ? 'flex-start' : 'center', gap: open ? 12 : 0 }}
             >
               {isActive(item.path) && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[1px] w-[3px] h-5 bg-orange-400 rounded-r-full shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
@@ -113,10 +137,13 @@ export default function Sidebar({ open, onToggle }) {
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {item.icon}
               </svg>
+              {open && (
+                <span className="text-sm whitespace-nowrap overflow-hidden">{item.label}</span>
+              )}
             </Link>
 
-            {/* Hover tooltip */}
-            {hoveredItem === item.path && (
+            {/* Hover tooltip — only when collapsed */}
+            {!open && hoveredItem === item.path && (
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-black/80 backdrop-blur-lg border border-white/10 rounded-lg text-xs text-white whitespace-nowrap z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 {item.label}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-black/80" />
@@ -127,11 +154,18 @@ export default function Sidebar({ open, onToggle }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-white/[0.06] flex flex-col items-center gap-2 relative z-10">
-        <ProfileAvatar user={user} size="w-8 h-8" />
+      <div className={`p-3 border-t border-white/[0.06] flex items-center gap-2 relative z-10 ${open ? 'justify-between' : 'flex-col justify-center'}`}>
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <ProfileAvatar user={user} size="w-8 h-8" />
+          {open && (
+            <span className="text-xs text-white/60 truncate max-w-[120px]">
+              {user?.full_name || user?.name || user?.email || ''}
+            </span>
+          )}
+        </div>
         <button
           onClick={handleLogout}
-          className="p-2 text-white/30 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-all duration-200"
+          className="p-2 text-white/30 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-all duration-200 flex-shrink-0"
           title="Logout"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

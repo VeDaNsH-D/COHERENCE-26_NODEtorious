@@ -28,7 +28,7 @@ function logAction(eventName, payload = {}) {
     }
 }
 
-// Listen for messages from content script
+// Listen for messages from content script and website bridge
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'enrollLead') {
         enrollLeadToWorkflow(request.leadData)
@@ -38,7 +38,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             .catch(error => {
                 sendResponse({ success: false, error: error.message });
             });
-        return true; // Will respond asynchronously
+        return true;
+    }
+
+    if (request.action === 'getLeads') {
+        getStoredLeads()
+            .then(leads => {
+                sendResponse({ success: true, leads });
+            })
+            .catch(error => {
+                sendResponse({ success: false, error: error.message, leads: [] });
+            });
+        return true;
+    }
+
+    if (request.action === 'clearLeads') {
+        clearStoredLeads()
+            .then(() => {
+                sendResponse({ success: true });
+            })
+            .catch(error => {
+                sendResponse({ success: false, error: error.message });
+            });
+        return true;
+    }
+
+    if (request.action === 'ping') {
+        sendResponse({ success: true, version: '1.0' });
+        return false;
     }
 });
 
@@ -61,20 +88,20 @@ async function enrollLeadToWorkflow(leadData) {
                 timestamp: new Date().toISOString()
             })
         });
-        
+
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }
-        
+
         const data = await response.json();
-        
+
         // Log the action for analytics
         logAction('lead_enrolled', {
             leadName: leadData.name,
             company: leadData.company,
             timestamp: new Date().toISOString()
         });
-        
+
         return data;
     } catch (error) {
         console.error('Failed to enroll lead:', error);
@@ -109,11 +136,11 @@ async function clearStoredLeads() {
 chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === 'install') {
         // Open welcome page
-        chrome.tabs.create({ 
+        chrome.tabs.create({
             url: 'https://yoursite.com/extension-welcome',
             active: true
         });
-        
+
         // Initialize settings
         chrome.storage.sync.set({
             'intelligenceScout_settings': {
@@ -135,11 +162,11 @@ if (chrome.alarms && chrome.alarms.create) {
             chrome.storage.local.get(['activityLog'], (result) => {
                 const log = result.activityLog || [];
                 const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                
+
                 const filtered = log.filter(entry => {
                     return new Date(entry.timestamp) > oneWeekAgo;
                 });
-                
+
                 chrome.storage.local.set({ activityLog: filtered });
             });
         }

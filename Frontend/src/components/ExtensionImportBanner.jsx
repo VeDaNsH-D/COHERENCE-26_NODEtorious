@@ -1,23 +1,43 @@
 import React, { useEffect, useState } from 'react';
+import apiService from '../services/api';
 
 export default function ExtensionImportBanner() {
   const [available, setAvailable] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [leadCount, setLeadCount] = useState(0);
 
   useEffect(() => {
-    let timeout = setTimeout(async () => {
-      try {
-        if (window.extensionData?.getLeads) {
-          await window.extensionData.getLeads().catch(() => {});
-          setAvailable(true);
-        }
-      } catch {
-        setAvailable(false);
-      }
-    }, 1000);
+    // If the extension content script already injected the bridge, detect immediately
+    if (window.__aurareach_extension_installed__) {
+      checkLeads();
+      return;
+    }
 
-    return () => clearTimeout(timeout);
+    // Otherwise wait for the custom event fired by the bridge content script
+    const handler = () => checkLeads();
+    window.addEventListener('aurareach-extension-ready', handler);
+
+    // Also try after a short delay in case the event already fired
+    const timeout = setTimeout(() => checkLeads(), 1500);
+
+    return () => {
+      window.removeEventListener('aurareach-extension-ready', handler);
+      clearTimeout(timeout);
+    };
   }, []);
+
+  const checkLeads = async () => {
+    try {
+      if (!window.extensionData?.getLeads) return;
+      const leads = await window.extensionData.getLeads();
+      if (leads && leads.length > 0) {
+        setAvailable(true);
+        setLeadCount(leads.length);
+      }
+    } catch {
+      // Extension not installed or no leads
+    }
+  };
 
   if (!available) return null;
 
@@ -26,27 +46,25 @@ export default function ExtensionImportBanner() {
     setImporting(true);
     try {
       const leads = await window.extensionData.getLeads();
-      if (!leads.length) {
+      if (!leads || leads.length === 0) {
         alert('No leads captured in extension.');
         return;
       }
 
-      const res = await fetch('/api/sync-leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leads, timestamp: new Date().toISOString() }),
-      });
+      const data = await apiService.post('/api/sync-leads', { leads });
 
-      if (res.ok) {
-        const data = await res.json();
-        alert(`Successfully imported ${data.syncedCount ?? leads.length} leads.`);
-        if (window.extensionData.clearLeads) {
-          await window.extensionData.clearLeads();
-        }
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(`Import failed: ${err.detail || 'Unknown error'}`);
+      alert(`Successfully imported ${data.syncedCount ?? leads.length} lead(s)${data.duplicates ? ` (${data.duplicates} duplicates skipped)` : ''}.`);
+
+      // Clear leads from extension storage after successful sync
+      if (window.extensionData.clearLeads) {
+        await window.extensionData.clearLeads().catch(() => { });
       }
+
+      setAvailable(false);
+      setLeadCount(0);
+
+      // Notify other components (e.g. LeadUpload) to refresh their lead list
+      window.dispatchEvent(new CustomEvent('leads-imported'));
     } catch (e) {
       alert(`Error importing leads: ${e.message}`);
     } finally {
@@ -60,7 +78,9 @@ export default function ExtensionImportBanner() {
         <span className="text-2xl">🎯</span>
         <div>
           <div className="font-semibold text-sm">Intelligence Scout Connected</div>
-          <div className="text-xs text-white/80">Import captured LinkedIn leads from your browser extension.</div>
+          <div className="text-xs text-white/80">
+            {leadCount} lead{leadCount !== 1 ? 's' : ''} ready to import from your browser extension.
+          </div>
         </div>
       </div>
       <button

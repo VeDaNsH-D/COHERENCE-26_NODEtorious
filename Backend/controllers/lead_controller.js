@@ -508,12 +508,70 @@ function convertTemplateToWorkflow(template, lead) {
     return { nodes, edges }
 }
 
+/* SYNC LEADS (batch import from Chrome Extension) */
+const syncLeads = async (req, res) => {
+    try {
+        const { leads } = req.body
+
+        if (!Array.isArray(leads) || leads.length === 0) {
+            return res.status(400).json({ message: "No leads provided" })
+        }
+
+        let synced = 0
+        let duplicates = 0
+        const insertedLeads = []
+
+        for (const item of leads) {
+            const name = item.name || ""
+            const email = (item.email || "").toLowerCase()
+            const profileUrl = item.profileUrl || item.linkedin || ""
+
+            // Check for duplicate by LinkedIn URL or email
+            const query = []
+            if (profileUrl) query.push({ linkedin: profileUrl })
+            if (email) query.push({ email })
+
+            if (query.length > 0) {
+                const existing = await Lead.findOne({ $or: query })
+                if (existing) {
+                    duplicates++
+                    continue
+                }
+            }
+
+            const lead = await Lead.create({
+                name,
+                email: email || "",
+                company: item.company || "",
+                role: item.role || "",
+                linkedin: profileUrl,
+                lead_source: "extension",
+                status: "new"
+            })
+
+            insertedLeads.push(lead)
+            synced++
+        }
+
+        res.json({
+            message: `Synced ${synced} lead(s)`,
+            syncedCount: synced,
+            duplicates,
+            leads: insertedLeads
+        })
+    } catch (err) {
+        console.error("Sync leads failed:", err)
+        res.status(500).json({ message: "Failed to sync leads", error: err.message })
+    }
+}
+
 module.exports = {
     uploadLeads,
     getLeads,
     getLeadById,
     deleteLead,
     enrollLead,
+    syncLeads,
     getLeadInsights,
     generateLeadWorkflow
 }
