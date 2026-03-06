@@ -1,128 +1,116 @@
-import { useScrollReveal } from '../hooks/useScrollReveal';
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Users, Mail, CheckCircle2 } from 'lucide-react';
+
 export default function DashboardPreview() {
-    const ref = useScrollReveal();
+  return (
+    <section className="py-32 relative text-white bg-[#0a0a0c] overflow-hidden">
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center mb-20 max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-[-0.03em] mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-b from-white to-[#737373]">
+              Command your outreach
+            </h2>
+            <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto font-light leading-relaxed">
+              Monitor campaigns, track replies, and analyze performance from a single beautifully crafted dashboard designed for speed.
+            </p>
+          </motion.div>
+        </div>
 
-    return (
-        <section className="section bg-transparent" id="dashboard" ref={ref}>
-            <style>{`
-            @keyframes bar-grow {
-                from { height: 0; }
-            }
-            `}</style>
-            <div className="container">
-                <div className="text-center flex flex-col items-center mb-[96px] reveal">
-                    <span className="section-label">Monitoring</span>
-                    <h2 className="section-title">Real-time visibility into<br />every automated sequence</h2>
-                    <p className="section-subtitle">
-                        See leads processed, messages sent, reply rates, and workflow progression in one place — no more guessing what&apos;s working.
-                    </p>
-                </div>
-
-                {/* Stats bar */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-[96px] reveal">
-                    <div className="glass-panel p-12 text-left relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_#000000cc,_0_0_30px_#a855f70d] hover:border-white/20 before:absolute before:inset-x-0 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:opacity-50">
-                        <span className="block text-sm text-white/70 mb-2 uppercase tracking-[0.05em] font-semibold">Increase in response rates</span>
-                        <span className="text-[3.5rem] font-extrabold tracking-[-0.04em] text-white leading-none bg-clip-text text-transparent bg-[linear-gradient(135deg,#ffffff_0%,#ffffffb3_100%)]">70%</span>
-                    </div>
-                    <div className="glass-panel p-12 text-left relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_#000000cc,_0_0_30px_#a855f70d] hover:border-white/20 before:absolute before:inset-x-0 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:opacity-50">
-                        <span className="block text-sm text-white/70 mb-2 uppercase tracking-[0.05em] font-semibold">Faster campaign setup</span>
-                        <span className="text-[3.5rem] font-extrabold tracking-[-0.04em] text-white leading-none bg-clip-text text-transparent bg-[linear-gradient(135deg,#ffffff_0%,#ffffffb3_100%)]">4x</span>
-                    </div>
-                    <div className="glass-panel p-12 text-left relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_#000000cc,_0_0_30px_#a855f70d] hover:border-white/20 before:absolute before:inset-x-0 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:opacity-50">
-                        <span className="block text-sm text-white/70 mb-2 uppercase tracking-[0.05em] font-semibold">Lower cost per lead</span>
-                        <span className="text-[3.5rem] font-extrabold tracking-[-0.04em] text-white leading-none bg-clip-text text-transparent bg-[linear-gradient(135deg,#ffffff_0%,#ffffffb3_100%)]">64%</span>
-                    </div>
-                </div>
-
-                <div className="reveal reveal-delay-1">
-                    <div className="glass-panel flex overflow-hidden min-h-[480px] font-sans max-md:flex-col max-md:min-h-0">
-                        {/* Sidebar */}
-                        <div className="w-[220px] shrink-0 p-6 bg-[#0a0a0f]/50 border-r border-white/10 max-md:w-full max-md:border-r-0 max-md:border-b max-md:p-4">
-                            <div className="flex items-center gap-2 text-sm font-bold mb-12 text-white max-md:mb-6">
-                                <div className="w-2.5 h-2.5 rounded bg-[#f97316] shadow-[0_0_10px_#f97316]" />
-                                <span>NODEtorious</span>
-                            </div>
-                            <div className="flex flex-col gap-2 max-md:flex-row max-md:overflow-x-auto">
-                                <div className="flex items-center gap-3 py-2.5 px-3.5 text-sm rounded-lg cursor-pointer transition-all duration-150 max-md:whitespace-nowrap max-md:text-xs bg-[#f97316]/10 text-[#f97316] font-semibold border border-[#f97316]/20">
-                                    <span>📊</span> Dashboard
-                                </div>
-                                <div className="flex items-center gap-3 py-2.5 px-3.5 text-sm text-white/45 rounded-lg cursor-pointer transition-all duration-150 hover:text-white hover:bg-white/5 max-md:whitespace-nowrap max-md:text-xs"><span>📧</span> Campaigns</div>
-                                <div className="flex items-center gap-3 py-2.5 px-3.5 text-sm text-white/45 rounded-lg cursor-pointer transition-all duration-150 hover:text-white hover:bg-white/5 max-md:whitespace-nowrap max-md:text-xs"><span>👥</span> Leads</div>
-                                <div className="flex items-center gap-3 py-2.5 px-3.5 text-sm text-white/45 rounded-lg cursor-pointer transition-all duration-150 hover:text-white hover:bg-white/5 max-md:whitespace-nowrap max-md:text-xs"><span>⚡</span> Workflows</div>
-                                <div className="flex items-center gap-3 py-2.5 px-3.5 text-sm text-white/45 rounded-lg cursor-pointer transition-all duration-150 hover:text-white hover:bg-white/5 max-md:whitespace-nowrap max-md:text-xs"><span>⚙️</span> Settings</div>
-                            </div>
-                        </div>
-
-                        {/* Main content */}
-                        <div className="flex-1 p-8 flex flex-col gap-8 bg-black/20 max-md:p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-                                    <div className="flex justify-between text-xs text-white/45 mb-2">
-                                        <span>Leads Processed</span>
-                                        <span className="text-[#4ade80] font-semibold">+12.5%</span>
-                                    </div>
-                                    <div className="text-2xl font-extrabold tracking-[-0.02em] mb-4 text-white">24,847</div>
-                                    <div className="h-1 rounded-sm bg-white/10 overflow-hidden">
-                                        <div className="h-full rounded-sm bg-white" style={{ width: '78%' }} />
-                                    </div>
-                                </div>
-
-                                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-                                    <div className="flex justify-between text-xs text-white/45 mb-2">
-                                        <span>Emails Sent</span>
-                                        <span className="text-[#4ade80] font-semibold">+8.3%</span>
-                                    </div>
-                                    <div className="text-2xl font-extrabold tracking-[-0.02em] mb-4 text-white">18,392</div>
-                                    <div className="h-1 rounded-sm bg-white/10 overflow-hidden">
-                                        <div className="h-full rounded-sm bg-[#3b82f6] shadow-[0_0_10px_#3b82f6]" style={{ width: '65%' }} />
-                                    </div>
-                                </div>
-
-                                <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-                                    <div className="flex justify-between text-xs text-white/45 mb-2">
-                                        <span>Reply Rate</span>
-                                        <span className="text-[#4ade80] font-semibold">+3.1%</span>
-                                    </div>
-                                    <div className="text-2xl font-extrabold tracking-[-0.02em] mb-4 text-white">34.7%</div>
-                                    <div className="h-1 rounded-sm bg-white/10 overflow-hidden">
-                                        <div className="h-full rounded-sm bg-[#4ade80] shadow-[0_0_10px_#4ade80]" style={{ width: '35%' }} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Chart */}
-                            <div className="flex-1 p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md max-md:p-4">
-                                <div className="flex justify-between items-center mb-8 max-md:flex-col max-md:gap-4 max-md:items-start">
-                                    <h4 className="text-sm font-bold text-white">Campaign Performance</h4>
-                                    <div className="flex gap-6 text-xs text-white/45 flex-wrap">
-                                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block bg-white shadow-[0_0_8px_#ffffff80]" /> Sent</span>
-                                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block bg-white/30" /> Opened</span>
-                                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block bg-[#f97316] shadow-[0_0_8px_#f97316]" /> Replied</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-end justify-between gap-6 min-h-[160px] max-md:gap-2">
-                                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => {
-                                        const h = [65, 80, 55, 90, 75, 40, 70];
-                                        const o = [45, 55, 38, 65, 50, 28, 48];
-                                        const r = [20, 28, 18, 35, 25, 12, 22];
-                                        return (
-                                            <div className="flex-1 flex flex-col items-center gap-2" key={day}>
-                                                <div className="flex items-end gap-1 w-full h-[140px] max-md:gap-0.5">
-                                                    <div className="flex-1 rounded-t animate-[bar-grow_1.2s_cubic-bezier(0.16,1,0.3,1)_both] bg-white" style={{ height: `${h[i]}%` }} />
-                                                    <div className="flex-1 rounded-t animate-[bar-grow_1.2s_cubic-bezier(0.16,1,0.3,1)_both] bg-white/30" style={{ height: `${o[i]}%` }} />
-                                                    <div className="flex-1 rounded-t animate-[bar-grow_1.2s_cubic-bezier(0.16,1,0.3,1)_both] bg-[#f97316] shadow-[0_0_15px_#f9731666]" style={{ height: `${r[i]}%` }} />
-                                                </div>
-                                                <span className="text-xs text-white/45 font-medium">{day}</span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mx-auto max-w-5xl"
+        >
+          {/* Dashboard Frame - Ultra Premium */}
+          <div className="rounded-[2rem] border border-white/5 bg-[#0d0d12]/90 backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden relative z-10">
+            {/* OSX-style Top Bar */}
+            <div className="flex items-center gap-2 px-6 py-4 border-b border-white/[0.03] bg-white/[0.01]">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#ff5f56]/80 flex items-center justify-center group"><div className="w-1.5 h-1.5 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"/></div>
+                <div className="w-3 h-3 rounded-full bg-[#ffbd2e]/80 flex items-center justify-center group"><div className="w-1.5 h-1.5 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"/></div>
+                <div className="w-3 h-3 rounded-full bg-[#27c93f]/80 flex items-center justify-center group"><div className="w-1.5 h-1.5 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"/></div>
+              </div>
+              <div className="mx-auto text-[11px] font-medium text-white/30 tracking-wider flex items-center gap-2">
+                <span className="w-4 h-4 rounded bg-white/5 flex items-center justify-center">⌘</span>
+                app.outreach.ai
+              </div>
+              <div className="w-12" /> {/* Spacer for flex centering */}
             </div>
-        </section>
-    );
+
+            {/* Dashboard Content */}
+            <div className="p-8 md:p-12">
+              <div className="flex flex-col md:flex-row gap-6 lg:gap-8 mb-8">
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+                  {[
+                    { label: 'Leads Contacted', value: '14,208', icon: Users, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+                    { label: 'Replies Received', value: '1,842', icon: Mail, color: 'text-[#f97316]', bg: 'bg-[#f97316]/10' },
+                    { label: 'Meetings Booked', value: '412', icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-400/10' },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.2 + (0.1 * i), ease: "easeOut" }}
+                      className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group relative overflow-hidden"
+                    >
+                      <div className="flex items-center justify-between mb-6 relative z-10">
+                        <span className="text-[#a1a1aa] text-sm font-medium tracking-wide">{stat.label}</span>
+                        <div className={`w-8 h-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                          <stat.icon className={`w-4 h-4 ${stat.color} opacity-90`} />
+                        </div>
+                      </div>
+                      <div className="text-3xl font-semibold text-white tracking-tight relative z-10">{stat.value}</div>
+                      <div className="mt-2 text-xs text-[#27c93f]/80 font-medium tracking-wide relative z-10">+12% from last week</div>
+                      
+                      {/* Subtle hover gleam */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.02] to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chart Mock */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="h-[280px] w-full rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center p-8 relative overflow-hidden group"
+              >
+                {/* simple chart lines */}
+                <div className="w-full h-full flex items-end justify-between gap-3 overflow-hidden">
+                  {[30, 50, 40, 70, 60, 90, 80, 100, 85, 110, 95, 120].map((h, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ height: 0 }}
+                      whileInView={{ height: `${h}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.2, delay: 0.6 + (i * 0.04), ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full rounded-t-sm relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#f97316]/5 to-[#f97316]/40 group-hover:to-[#f97316]/60 transition-colors duration-500" />
+                      <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#f97316] opacity-80" />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+          
+          {/* Outer glow behind dashboard */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-accent/5 blur-[120px] -z-10 rounded-[3rem] pointer-events-none" />
+        </motion.div>
+      </div>
+    </section>
+  );
 }
