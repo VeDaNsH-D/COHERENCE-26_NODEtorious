@@ -38,7 +38,7 @@ function cleanLeads(rows) {
         const industry =
             normalized.industry ||
             ""
-
+        
         const company_size =
             normalized.company_size ||
             ""
