@@ -10,7 +10,7 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
-import { Activity, AlertTriangle, CheckCircle2, Plus, Play } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Mail, MessageSquare, Plus, Play, Target, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import analyticsService from '../services/analyticsService';
@@ -50,17 +50,23 @@ function MetricModule({ metric, index }) {
   const count = useCountUp(metric.value);
   const suffix = metric.suffix || '';
   const displayValue = Number.isNaN(Number(metric.value)) ? metric.value : `${count}${suffix}`;
+  const Icon = metric.icon;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: index * 0.08 }}
-      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-lg shadow-[0_0_26px_rgba(255,122,24,0.14)]"
+      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_12px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
     >
       <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-orange-500/20 blur-2xl" />
-      <p className="text-xs uppercase tracking-[0.2em] text-white/45">{metric.label}</p>
-      <div className="mt-3 text-3xl font-semibold text-[#ffb66f]">{displayValue}</div>
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-white/45">{metric.label}</p>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${metric.badgeClass}`}>
+          <Icon className="h-[18px] w-[18px]" />
+        </div>
+      </div>
+      <div className="mt-3 text-[36px] font-bold text-[#ffb66f]">{displayValue}</div>
       <p className={`mt-2 text-xs font-medium ${metric.trendUp ? 'text-emerald-300' : 'text-red-300'}`}>
         {metric.trend}
       </p>
@@ -77,7 +83,7 @@ function StatusRing({ label, value, total, color, icon: Icon, index }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.35 + index * 0.1 }}
-      className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-lg"
+      className="rounded-2xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_10px_24px_rgba(0,0,0,0.26)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
     >
       <div className="flex items-center justify-between">
         <div>
@@ -142,31 +148,41 @@ export default function Dashboard() {
   const chartData = mockDashboardData.chartData;
 
   const metrics = useMemo(() => {
+    const metricMeta = {
+      totalLeads: { icon: Users, badgeClass: 'border-cyan-300/30 bg-cyan-400/15 text-cyan-200' },
+      emailsSent: { icon: Mail, badgeClass: 'border-amber-300/35 bg-amber-400/15 text-amber-200' },
+      replies: { icon: MessageSquare, badgeClass: 'border-emerald-300/35 bg-emerald-400/15 text-emerald-200' },
+      leadScore: { icon: Activity, badgeClass: 'border-violet-300/35 bg-violet-400/15 text-violet-200' },
+      conversions: { icon: Target, badgeClass: 'border-orange-300/35 bg-orange-400/15 text-orange-200' },
+    };
+
     if (!analytics) {
       return [
-        { label: 'Total Leads', value: 2483, trend: '+12% today', trendUp: true },
-        { label: 'Emails Sent', value: 1620, trend: '+8% today', trendUp: true },
-        { label: 'Replies', value: 401, trend: '+5% today', trendUp: true },
-        { label: 'Lead Score %', value: 64, suffix: '%', trend: '+2% today', trendUp: true },
-        { label: 'Conversions', value: 93, trend: '-2% today', trendUp: false },
+        { label: 'Total Leads', value: 2483, trend: '+12% today', trendUp: true, ...metricMeta.totalLeads },
+        { label: 'Emails Sent', value: 1620, trend: '+8% today', trendUp: true, ...metricMeta.emailsSent },
+        { label: 'Replies', value: 401, trend: '+5% today', trendUp: true, ...metricMeta.replies },
+        { label: 'Lead Score %', value: 64, suffix: '%', trend: '+2% today', trendUp: true, ...metricMeta.leadScore },
+        { label: 'Conversions', value: 93, trend: '-2% today', trendUp: false, ...metricMeta.conversions },
       ];
     }
     return [
-      { label: 'Total Leads', value: analytics.totalLeads || 0, trend: '+12% today', trendUp: true },
-      { label: 'Emails Sent', value: analytics.emailsSent || 0, trend: '+8% today', trendUp: true },
-      { label: 'Replies', value: analytics.replies || 0, trend: '+5% today', trendUp: true },
+      { label: 'Total Leads', value: analytics.totalLeads || 0, trend: '+12% today', trendUp: true, ...metricMeta.totalLeads },
+      { label: 'Emails Sent', value: analytics.emailsSent || 0, trend: '+8% today', trendUp: true, ...metricMeta.emailsSent },
+      { label: 'Replies', value: analytics.replies || 0, trend: '+5% today', trendUp: true, ...metricMeta.replies },
       {
         label: 'Lead Score %',
         value: Math.round(analytics.averageLeadScorePct || 0),
         suffix: '%',
         trend: analytics.replies > 0 ? '+reply feedback applied' : 'No reply feedback yet',
         trendUp: analytics.replies > 0,
+        ...metricMeta.leadScore,
       },
       {
         label: 'Conversions',
         value: analytics.conversions || 0,
         trend: analytics.conversions > 0 ? '+3% today' : '-2% today',
         trendUp: analytics.conversions > 0,
+        ...metricMeta.conversions,
       },
     ];
   }, [analytics]);
@@ -193,9 +209,14 @@ export default function Dashboard() {
     { key: 'completed', label: 'Completed', icon: CheckCircle2, color: '#4cc9f0' },
     { key: 'failed', label: 'Failed', icon: AlertTriangle, color: '#ef4444' },
   ];
+  const todayLabel = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date());
 
   return (
-    <div className="relative space-y-8">
+    <div className="relative space-y-10">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(rgba(255,255,255,0.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.018)_1px,transparent_1px)] bg-[size:120px_120px]" />
       <div className="pointer-events-none absolute -left-28 top-10 -z-10 h-72 w-72 rounded-full bg-[#ff7a18]/20 blur-[120px]" />
       <div className="pointer-events-none absolute -right-24 bottom-12 -z-10 h-72 w-72 rounded-full bg-[#4cc9f0]/15 blur-[120px]" />
@@ -204,11 +225,37 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.28)]"
       >
-        <h1 className="text-3xl font-semibold tracking-tight text-white">AI Command Center</h1>
-        <p className="mt-1 text-white/45">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+            Command Deck
+          </span>
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/60">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-300" />
+            </span>
+            <span>System Live</span>
+            <span className="text-white/35">•</span>
+            <span>{todayLabel}</span>
+          </div>
+        </div>
+        <h1 className="text-[34px] font-semibold tracking-tight text-white">AI Command Center</h1>
+        <p className="mt-2 text-white/50">
           Welcome back{user?.name ? `, ${user.name}` : ''}. Live outreach intelligence is online.
         </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {metrics.slice(0, 3).map((metric) => (
+            <div
+              key={`headline-${metric.label}`}
+              className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs text-white/75"
+            >
+              <span className="text-white/50">{metric.label}:</span>{' '}
+              <span className="font-semibold text-white">{metric.value}{metric.suffix || ''}</span>
+            </div>
+          ))}
+        </div>
         <ExtensionImportBanner />
       </motion.div>
 
@@ -218,7 +265,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {metrics.map((metric, index) => (
           <MetricModule key={metric.label} metric={metric} index={index} />
         ))}
@@ -229,14 +276,14 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="xl:col-span-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_0_30px_rgba(255,122,24,0.12)]"
+          className="xl:col-span-8 rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
         >
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">Campaign Activity Visualization</h2>
+              <h2 className="text-[18px] font-semibold text-white">Campaign Activity Visualization</h2>
               <p className="mt-1 text-sm text-white/45">Daily engagement and lead activity trends</p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/65">
+            <div className="hover-lift inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs text-white/65">
               <Activity className="h-3.5 w-3.5 text-[#ffb66f]" />
               Live feed
             </div>
@@ -269,7 +316,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-4">
+          <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-xl shadow-[0_12px_26px_rgba(0,0,0,0.26)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
             <p className="mb-3 text-xs uppercase tracking-[0.18em] text-white/45">Live Campaign Queue</p>
             {loading ? (
               <p className="text-sm text-white/40">Loading workflows...</p>
@@ -278,7 +325,7 @@ export default function Dashboard() {
                 {workflows.slice(0, 4).map((workflow) => (
                   <div
                     key={workflow._id || workflow.id}
-                    className="flex items-center justify-between rounded-xl border border-white/6 bg-white/[0.02] px-3 py-2"
+                    className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.05] px-3 py-2 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(0,0,0,0.34)]"
                   >
                     <div>
                       <p className="text-sm text-white/90">{workflow.name}</p>
@@ -302,8 +349,8 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.28 }}
           className="space-y-5 xl:col-span-4"
         >
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_0_30px_rgba(76,201,240,0.08)]">
-            <h3 className="mb-4 text-sm uppercase tracking-[0.2em] text-white/55">System Status</h3>
+          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+            <h3 className="mb-4 text-[18px] font-semibold text-white">System Status</h3>
             <div className="space-y-3">
               {statusItems.map((item, index) => (
                 <StatusRing
@@ -320,17 +367,18 @@ export default function Dashboard() {
           </div>
 
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="rounded-3xl border border-orange-300/25 bg-gradient-to-br from-[#ff7a18] to-[#ffc371] p-5 text-[#221100] shadow-[0_0_28px_rgba(255,122,24,0.45)]"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25 }}
+            className="rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 text-white backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)]"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#3a1f08]/80">Quick Action</p>
-            <h3 className="mt-2 text-xl font-semibold">Create Workflow</h3>
-            <p className="mt-2 text-sm text-[#3a1f08]/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Quick Action</p>
+            <h3 className="mt-2 text-[18px] font-semibold">Create Workflow</h3>
+            <p className="mt-2 text-sm text-white/65">
               Launch a new automation pipeline from the control panel.
             </p>
             <button
               onClick={() => navigate('/workflows')}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-black/25 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-black/35"
+              className="hover-lift mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/[0.14]"
             >
               <Plus className="h-4 w-4" />
               Get Started
