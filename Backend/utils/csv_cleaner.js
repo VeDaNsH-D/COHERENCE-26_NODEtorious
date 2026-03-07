@@ -9,7 +9,7 @@ function cleanLeads(rows) {
 
         // Normalize headers
         for (const key in row) {
-            const normalizedKey = key.toLowerCase().replace(/\s+/g, "_")
+            const normalizedKey = key.replace(/^\uFEFF/, "").toLowerCase().replace(/\s+/g, "_")
             normalized[normalizedKey] = row[key]
         }
 
@@ -38,7 +38,7 @@ function cleanLeads(rows) {
         const industry =
             normalized.industry ||
             ""
-        
+
         const company_size =
             normalized.company_size ||
             ""

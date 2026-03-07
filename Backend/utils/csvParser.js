@@ -9,7 +9,7 @@ const parseCsvFile = (filePath) => {
 
         fs.createReadStream(filePath)
             .on("error", reject)
-            .pipe(csv())
+            .pipe(csv({ bom: true }))
             .on("data", (data) => {
                 rows.push(data);
             })
