@@ -30,6 +30,4 @@ Built with scalable technology to ensure high performance, security, and enterpr
 *   **Authentication**: Secure access and identity verification utilizing JWT and Google Auth.
 *   **Database**: Robust and flexible data storage utilizing MongoDB.
 *   **Data Ingestion**: Full support for comprehensive CSV and Excel file inputs.
-```
 
-Let me know if you would like me to adjust any wording or expand upon specific sections!
