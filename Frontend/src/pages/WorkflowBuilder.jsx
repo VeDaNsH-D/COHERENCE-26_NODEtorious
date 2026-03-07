@@ -14,11 +14,72 @@ import ReactFlow, {
   getSmoothStepPath,
   useEdgesState,
   useNodesState,
+  useViewport,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import leadsService from '../services/leadsService';
 import workflowsService from '../services/workflowsService';
 import { socket } from '../utils/socket';
+
+const CURSOR_COLORS = [
+  '#f87171', '#fb923c', '#fbbf24', '#34d399', '#2dd4bf', 
+  '#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#f43f5e'
+];
+
+const COLLABORATOR_NAMES = [
+  'Cheetah', 'Falcon', 'Dolphin', 'Tiger', 'Lion', 
+  'Eagle', 'Wolf', 'Panther', 'Shark', 'Hawk', 
+  'Owl', 'Bear', 'Fox', 'Dragon', 'Phoenix'
+];
+
+function generateRandomUser() {
+  const color = CURSOR_COLORS[Math.floor(Math.random() * CURSOR_COLORS.length)];
+  const name = `Guest ${COLLABORATOR_NAMES[Math.floor(Math.random() * COLLABORATOR_NAMES.length)]}`;
+  return { id: Math.random().toString(36).substr(2, 9), color, name };
+}
+
+function CursorOverlay({ collaborators }) {
+  const { x, y, zoom } = useViewport();
+  
+  if (!collaborators || Object.keys(collaborators).length === 0) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden">
+      {Object.values(collaborators).map((cursor) => (
+        <div 
+          key={cursor.socketId}
+          className="absolute left-0 top-0 transition-all duration-100 ease-linear"
+          style={{ transform: `translate(${x + cursor.x * zoom}px, ${y + cursor.y * zoom}px)` }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            style={{ transform: `scale(${Math.max(0.6, Math.min(1, zoom))})`, transformOrigin: 'top left' }}
+          >
+            <path
+              d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z"
+              fill={cursor.user?.color || '#3b82f6'}
+              stroke="white"
+              strokeWidth="1.5"
+            />
+          </svg>
+          <div
+            className="mt-1 ml-4 rounded px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm"
+            style={{ 
+              backgroundColor: cursor.user?.color || '#3b82f6',
+              transform: `scale(${Math.max(0.7, Math.min(1, zoom))})`,
+              transformOrigin: 'top left'
+            }}
+          >
+            {cursor.user?.name || 'Guest'}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const DND_NODE_TYPE = 'application/x-workflow-node';
 
@@ -873,6 +934,9 @@ function WorkflowBuilderContent() {
   const [workflowName, setWorkflowName] = useState('New Website Workflow');
   const [workflowDescription, setWorkflowDescription] = useState('Automate website lead capture, routing, and follow-up actions.');
   const [currentWorkflowId, setCurrentWorkflowId] = useState(workflowId || null);
+  const [collaborators, setCollaborators] = useState({});
+  const [myUser] = useState(() => generateRandomUser());
+  const lastCursorUpdate = useRef(0);
 
   const [workflowCatalog, setWorkflowCatalog] = useState([]);
   const [loadingWorkflow, setLoadingWorkflow] = useState(false);
@@ -1079,7 +1143,7 @@ function WorkflowBuilderContent() {
   useEffect(() => {
     if (!currentWorkflowId) return;
 
-    socket.emit('join-workflow', currentWorkflowId);
+    socket.emit('join-workflow', { workflowId: currentWorkflowId, user: myUser });
 
     const handleNodeUpdated = (nodeData) => {
       isSocketUpdate.current = true;
@@ -1134,17 +1198,36 @@ function WorkflowBuilderContent() {
       }, 50);
     };
 
+    const handleCursorUpdated = (cursorData) => {
+      setCollaborators((prev) => ({
+        ...prev,
+        [cursorData.socketId]: cursorData
+      }));
+    };
+    
+    const handleCollaboratorLeft = (socketId) => {
+      setCollaborators((prev) => {
+        const next = { ...prev };
+        delete next[socketId];
+        return next;
+      });
+    };
+
     socket.on('node-updated', handleNodeUpdated);
     socket.on('edge-updated', handleEdgeUpdated);
     socket.on('workflow-synced', handleWorkflowSynced);
+    socket.on('cursor-updated', handleCursorUpdated);
+    socket.on('collaborator-left', handleCollaboratorLeft);
 
     return () => {
       socket.emit('leave-workflow', currentWorkflowId);
       socket.off('node-updated', handleNodeUpdated);
       socket.off('edge-updated', handleEdgeUpdated);
       socket.off('workflow-synced', handleWorkflowSynced);
+      socket.off('cursor-updated', handleCursorUpdated);
+      socket.off('collaborator-left', handleCollaboratorLeft);
     };
-  }, [currentWorkflowId, setNodes, setEdges]);
+  }, [currentWorkflowId, setNodes, setEdges, myUser]);
 
   // Effect to emit workflow sync on node/edge changes
   useEffect(() => {
@@ -1292,6 +1375,38 @@ function WorkflowBuilderContent() {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
+
+  const handlePointerMove = useCallback((event) => {
+    if (!currentWorkflowId || !reactFlowInstance || !socket.connected) return;
+    
+    const now = Date.now();
+    if (now - lastCursorUpdate.current < 30) return;
+    lastCursorUpdate.current = now;
+
+    const wrapperBounds = flowWrapperRef.current?.getBoundingClientRect();
+    if (!wrapperBounds) return;
+
+    let position = { x: 0, y: 0 };
+
+    if (typeof reactFlowInstance.screenToFlowPosition === 'function') {
+      position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+    } else if (typeof reactFlowInstance.project === 'function') {
+      position = reactFlowInstance.project({
+        x: event.clientX - wrapperBounds.left,
+        y: event.clientY - wrapperBounds.top,
+      });
+    }
+
+    socket.emit('cursor-update', {
+      workflowId: currentWorkflowId,
+      x: position.x,
+      y: position.y,
+      user: myUser
+    });
+  }, [currentWorkflowId, reactFlowInstance, myUser]);
 
   const handleCanvasDrop = useCallback(
     (event) => {
@@ -1771,7 +1886,7 @@ function WorkflowBuilderContent() {
             </div>
           </div>
 
-          <div ref={flowWrapperRef} className="h-full w-full pt-[var(--wf-header)]">
+          <div ref={flowWrapperRef} className="h-full w-full pt-[var(--wf-header)] relative" onPointerMove={handlePointerMove}>
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -1840,6 +1955,7 @@ function WorkflowBuilderContent() {
                 color="rgba(249, 146, 60, 0.11)"
               />
             </ReactFlow>
+            <CursorOverlay collaborators={collaborators} />
           </div>
         </section>
 
