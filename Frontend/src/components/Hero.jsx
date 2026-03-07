@@ -5,46 +5,81 @@ import { useNavigate } from 'react-router-dom';
 import Galaxy from './Galaxy';
 
 const workflowNodes = [
-  { label: 'Upload', x: 100, y: 182 },
-  { label: 'AI Engine', x: 300, y: 108 },
-  { label: 'Personalization', x: 520, y: 214 },
-  { label: 'Campaign', x: 740, y: 126 },
-  { label: 'Results', x: 920, y: 182 },
+  { label: 'Upload', x: 104, y: 196, width: 160 },
+  { label: 'AI Engine', x: 332, y: 132, width: 198 },
+  { label: 'Personalization', x: 556, y: 226, width: 244 },
+  { label: 'Campaign', x: 770, y: 152, width: 180 },
+  { label: 'Results', x: 944, y: 198, width: 144 },
 ];
 
-const workflowPaths = [
-  'M100 182 C170 176 210 130 300 108',
-  'M300 108 C380 112 430 198 520 214',
-  'M520 214 C600 214 665 142 740 126',
-  'M740 126 C810 120 860 166 920 182',
-];
+const WORKFLOW_VIEWBOX_WIDTH = 1020;
+const WORKFLOW_VIEWBOX_HEIGHT = 320;
+
+const getNodeEdge = (node, side) => {
+  const halfWidth = node.width / 2;
+  return {
+    x: side === 'right' ? node.x + halfWidth - 8 : node.x - halfWidth + 8,
+    y: node.y,
+  };
+};
+
+const workflowPaths = workflowNodes.slice(0, -1).map((node, index) => {
+  const nextNode = workflowNodes[index + 1];
+  const start = getNodeEdge(node, 'right');
+  const end = getNodeEdge(nextNode, 'left');
+  const deltaX = end.x - start.x;
+  const deltaY = end.y - start.y;
+
+  // Keep curve tension tied to node spacing so links stay connected if positions shift.
+  const controlXOffset = Math.max(18, Math.min(92, deltaX * 0.5));
+  const controlYOffset = deltaY * 0.34;
+
+  return [
+    `M${start.x} ${start.y}`,
+    `C${start.x + controlXOffset} ${start.y + controlYOffset}`,
+    `${end.x - controlXOffset} ${end.y - controlYOffset}`,
+    `${end.x} ${end.y}`,
+  ].join(' ');
+});
 
 const floatingCards = [
   {
     label: 'Upload 70%',
-    style:
-      'top-[44%] left-[3%] md:top-[45%] md:left-[8%] border-[#ffc37133] shadow-[0_0_28px_rgba(255,195,113,0.22)]',
+    meta: 'Ingestion',
+    x: 102,
+    y: 70,
+    tone: 'from-[#ffc37124] via-[#ffb24f12] to-[#ff7a1805]',
+    dot: 'bg-[#ffc371] shadow-[0_0_12px_rgba(255,195,113,0.95)]',
     duration: 5.6,
     delay: 0.1,
   },
   {
     label: 'AI Processing',
-    style:
-      'top-[30%] left-[23%] md:top-[26%] md:left-[28%] border-[#4cc9f033] shadow-[0_0_28px_rgba(76,201,240,0.2)]',
+    meta: 'Model Pass',
+    x: 338,
+    y: 42,
+    tone: 'from-[#4cc9f024] via-[#4cc9f012] to-[#0b152600]',
+    dot: 'bg-[#4cc9f0] shadow-[0_0_12px_rgba(76,201,240,0.95)]',
     duration: 6.1,
     delay: 0.4,
   },
   {
     label: 'Voice Message',
-    style:
-      'top-[70%] right-[28%] md:top-[73%] md:right-[31%] border-[#ff7a1833] shadow-[0_0_28px_rgba(255,122,24,0.22)]',
+    meta: 'Variant Live',
+    x: 666,
+    y: 292,
+    tone: 'from-[#ff9f5722] via-[#ff7a1814] to-[#0b152600]',
+    dot: 'bg-[#ff9f57] shadow-[0_0_12px_rgba(255,159,87,0.95)]',
     duration: 5.7,
     delay: 0.2,
   },
   {
     label: 'Output Generated',
-    style:
-      'top-[39%] right-[2%] md:top-[40%] md:right-[8%] border-[#4cc9f033] shadow-[0_0_28px_rgba(76,201,240,0.2)]',
+    meta: 'Ready',
+    x: 904,
+    y: 74,
+    tone: 'from-[#8de5ff1f] via-[#4cc9f012] to-[#0b152600]',
+    dot: 'bg-[#8de5ff] shadow-[0_0_12px_rgba(141,229,255,0.95)]',
     duration: 6.3,
     delay: 0.6,
   },
@@ -207,7 +242,7 @@ export default function Hero() {
           </MagneticButton>
 
           <MagneticButton
-            onClick={() => {}}
+            onClick={() => { }}
             className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-7 py-4 text-sm font-medium text-white/90 backdrop-blur-md shadow-[0_0_20px_rgba(76,201,240,0.14)] transition hover:border-white/25 hover:bg-white/10"
           >
             See Workflow
@@ -222,10 +257,14 @@ export default function Hero() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.55, delay: 0.42 + index * 0.09 }}
-              className={`absolute hidden md:block ${card.style}`}
+              className="absolute hidden -translate-x-1/2 -translate-y-1/2 md:block"
+              style={{
+                left: `${(card.x / WORKFLOW_VIEWBOX_WIDTH) * 100}%`,
+                top: `${(card.y / WORKFLOW_VIEWBOX_HEIGHT) * 100}%`,
+              }}
             >
               <motion.div
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur-md"
+                className={`relative min-w-[176px] overflow-hidden rounded-full border border-white/15 bg-gradient-to-br ${card.tone} px-4 py-2.5 text-left shadow-[0_10px_24px_rgba(0,0,0,0.34)] backdrop-blur-xl`}
                 animate={{ y: [0, -10, 0] }}
                 transition={{
                   duration: card.duration,
@@ -234,16 +273,23 @@ export default function Hero() {
                   delay: card.delay,
                 }}
               >
-                {card.label}
+                <div className="pointer-events-none absolute inset-[1px] rounded-full border border-white/8" />
+                <div className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(110deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.06)_34%,rgba(255,255,255,0)_70%)]" />
+                <div className="relative flex items-center gap-2.5">
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${card.dot}`} />
+                  <span className="text-[13px] font-medium tracking-[0.01em] text-white/90">{card.label}</span>
+                </div>
+                <p className="relative mt-1 pl-5 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/40">{card.meta}</p>
               </motion.div>
             </motion.div>
           ))}
 
           <div className="relative mx-auto h-[260px] max-w-5xl md:h-full">
+            <div className="pointer-events-none absolute inset-x-[2.5%] top-[12%] hidden h-[72%] rounded-[30px] border border-white/6 bg-[radial-gradient(ellipse_at_center,rgba(14,22,34,0.34),rgba(5,8,14,0)_72%)] md:block" />
             <svg
-              viewBox="0 0 1020 320"
+              viewBox={`0 0 ${WORKFLOW_VIEWBOX_WIDTH} ${WORKFLOW_VIEWBOX_HEIGHT}`}
               className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
-              preserveAspectRatio="xMidYMid meet"
+              preserveAspectRatio="none"
             >
               <defs>
                 <linearGradient id="pipelineGlow" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -266,29 +312,29 @@ export default function Hero() {
                   d={path}
                   fill="none"
                   stroke="url(#pipelineGlow)"
-                  strokeWidth="2"
+                  strokeWidth="2.3"
                   strokeLinecap="round"
-                  opacity="0.65"
+                  opacity="0.8"
                   filter="url(#softGlow)"
                 />
               ))}
 
               {workflowPaths.map((path, index) => (
                 <g key={`${path}-packet`}>
-                  <circle r="4" fill="#ffc371" filter="url(#softGlow)">
+                  <circle r="4.2" fill="#ffe0a5" filter="url(#softGlow)">
                     <animateMotion
-                      dur={`${3 + index * 0.4}s`}
+                      dur={`${3.3 + index * 0.42}s`}
                       repeatCount="indefinite"
                       path={path}
-                      begin={`${index * 0.35}s`}
+                      begin={`${index * 0.3}s`}
                     />
                   </circle>
-                  <circle r="2.5" fill="#ff7a18" opacity="0.9" filter="url(#softGlow)">
+                  <circle r="2" fill="#ff8b2a" opacity="0.85" filter="url(#softGlow)">
                     <animateMotion
-                      dur={`${2.6 + index * 0.3}s`}
+                      dur={`${3.3 + index * 0.42}s`}
                       repeatCount="indefinite"
                       path={path}
-                      begin={`${index * 0.2}s`}
+                      begin={`${index * 0.3}s`}
                     />
                   </circle>
                 </g>
@@ -318,15 +364,18 @@ export default function Hero() {
                 viewport={{ once: true, amount: 0.55 }}
                 transition={{ duration: 0.55, delay: 0.34 + index * 0.12 }}
                 className="absolute hidden -translate-x-1/2 -translate-y-1/2 md:block"
-                style={{ left: `${(node.x / 1020) * 100}%`, top: `${(node.y / 320) * 100}%` }}
+                style={{
+                  left: `${(node.x / WORKFLOW_VIEWBOX_WIDTH) * 100}%`,
+                  top: `${(node.y / WORKFLOW_VIEWBOX_HEIGHT) * 100}%`,
+                }}
               >
                 <motion.div
                   whileHover={{ y: -4, scale: 1.04 }}
                   animate={{
                     boxShadow: [
-                      '0 0 20px rgba(255, 140, 0, 0.18)',
-                      '0 0 38px rgba(255, 140, 0, 0.32)',
-                      '0 0 20px rgba(255, 140, 0, 0.18)',
+                      '0 0 20px rgba(255, 140, 0, 0.12)',
+                      '0 0 34px rgba(255, 140, 0, 0.24)',
+                      '0 0 20px rgba(255, 140, 0, 0.12)',
                     ],
                   }}
                   transition={{
@@ -335,40 +384,29 @@ export default function Hero() {
                     delay: index * 0.28,
                     ease: 'easeInOut',
                   }}
-                  className="rounded-full border border-white/10 bg-white/5 px-8 py-4 text-sm font-medium tracking-wide text-white backdrop-blur-lg"
+                  className="relative flex h-[72px] items-center justify-center overflow-hidden rounded-full border border-white/12 bg-[linear-gradient(156deg,rgba(17,24,36,0.72)_0%,rgba(9,13,20,0.76)_100%)] px-8 text-base font-medium tracking-[0.01em] text-white/92 backdrop-blur-lg"
+                  style={{ width: `${node.width}px` }}
                 >
-                  {node.label}
+                  <span className="pointer-events-none absolute inset-[1px] rounded-full border border-white/8" />
+                  <span className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(108deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_44%,rgba(255,255,255,0)_76%)]" />
+                  <span className="relative">{node.label}</span>
                 </motion.div>
                 <motion.div
-                  className="absolute left-1/2 top-1/2 -z-10 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ff7a18]/25 blur-xl"
-                  animate={{ opacity: [0.18, 0.45, 0.18], scale: [0.92, 1.12, 0.92] }}
+                  className="absolute left-1/2 top-1/2 -z-10 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ff7a18]/16 blur-xl"
+                  animate={{ opacity: [0.12, 0.35, 0.12], scale: [0.9, 1.14, 0.9] }}
                   transition={{ duration: 3.2, repeat: Infinity, delay: index * 0.22 }}
                 />
               </motion.div>
             ))}
 
-            {workflowPaths.map((path, index) => (
+            {workflowPaths.map((path) => (
               <svg
                 key={`${path}-overlay`}
-                viewBox="0 0 1020 320"
+                viewBox={`0 0 ${WORKFLOW_VIEWBOX_WIDTH} ${WORKFLOW_VIEWBOX_HEIGHT}`}
                 className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
-                preserveAspectRatio="xMidYMid meet"
+                preserveAspectRatio="none"
               >
-                <path d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3 8" />
-                <motion.circle
-                  r="3"
-                  fill="#4cc9f0"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0.2, 1, 0.2] }}
-                  transition={{ duration: 2.4, repeat: Infinity, delay: index * 0.3 }}
-                >
-                  <animateMotion
-                    dur={`${4 + index * 0.6}s`}
-                    repeatCount="indefinite"
-                    path={path}
-                    begin={`${index * 0.4}s`}
-                  />
-                </motion.circle>
+                <path d={path} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="4 10" />
               </svg>
             ))}
           </div>
