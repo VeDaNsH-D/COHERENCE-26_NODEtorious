@@ -642,3 +642,55 @@ body::before {
 .tab-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 138, 42, 0.6);
 }
+
+/* ── SVG Icons ── */
+svg.icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.tab-btn svg.icon {
+    width: 13px;
+    height: 13px;
+    vertical-align: -2px;
+    margin-right: 2px;
+}
+
+.section h3 svg.icon,
+.header h2 svg.icon {
+    width: 15px;
+    height: 15px;
+    vertical-align: -2px;
+    margin-right: 3px;
+    color: var(--scout-accent);
+}
+
+svg.icon.icon-heading {
+    width: 16px;
+    height: 16px;
+    vertical-align: -3px;
+    margin-right: 4px;
+}
+
+svg.icon.icon-success {
+    width: 15px;
+    height: 15px;
+    vertical-align: -2px;
+    color: #8fd89f;
+}
+
+.btn svg.icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    margin-right: 4px;
+}
+
+.path-btn .icon svg {
+    width: 20px;
+    height: 20px;
+    color: currentColor;
+}
