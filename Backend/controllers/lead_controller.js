@@ -58,7 +58,21 @@ const csvEscape = (value) => {
 const getLeads = async (req, res) => {
     try {
 
-        const leads = await Lead.find().sort({ createdAt: -1 })
+        const leads = await Lead.aggregate([
+            {
+                $addFields: {
+                    scoreSort: {
+                        $cond: {
+                            if: { $ne: ["$lead_score", null] },
+                            then: "$lead_score",
+                            else: -1
+                        }
+                    }
+                }
+            },
+            { $sort: { scoreSort: -1, createdAt: -1 } },
+            { $project: { scoreSort: 0 } }
+        ])
 
         res.json({
             total: leads.length,
@@ -78,7 +92,21 @@ const getLeads = async (req, res) => {
 /* EXPORT LEADS TO CSV */
 const exportLeadsCsv = async (req, res) => {
     try {
-        const leads = await Lead.find().sort({ createdAt: -1 }).lean()
+        const leads = await Lead.aggregate([
+            {
+                $addFields: {
+                    scoreSort: {
+                        $cond: {
+                            if: { $ne: ["$lead_score", null] },
+                            then: "$lead_score",
+                            else: -1
+                        }
+                    }
+                }
+            },
+            { $sort: { scoreSort: -1, createdAt: -1 } },
+            { $project: { scoreSort: 0 } }
+        ])
 
         const headers = [
             "name",
