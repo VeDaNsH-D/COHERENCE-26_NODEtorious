@@ -26,15 +26,18 @@ const app = express();
 const server = http.createServer(app);
 const passport = require("./config/passport");
 const googleAuthRoutes = require("./routes/googleAuth");
+const voiceRoutes = require("./routes/voice");
 
 /* Middleware */
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(requestLogger);
 app.use("/api/chatbot", chatbotRoutes);
 app.use(passport.initialize());
 app.use("/auth", googleAuthRoutes);
 app.use("/api/auth", googleAuthRoutes);
+app.use("/api/voice", voiceRoutes);
 /* Validate required environment variables */
 validateEnv();
 
@@ -46,6 +49,27 @@ const PORT = process.env.PORT || 8000;
 /* Root route */
 app.get("/", (req, res) => {
     res.send("Backend is running 🚀");
+});
+
+/* Twilio voice webhook fallback — handles calls when webhook is set to root URL */
+app.post("/", (req, res) => {
+    const twilio = require("twilio");
+    const twiml = new twilio.twiml.VoiceResponse();
+
+    const gather = twiml.gather({
+        input: "speech",
+        action: "/api/voice/process",
+        method: "POST",
+        speechTimeout: "auto",
+        speechModel: "phone_call"
+    });
+
+    gather.say(
+        "Hello. This is Scout A I assistant. You can ask things like. How many leads do I have. Or. How many replies do I have."
+    );
+
+    res.type("text/xml");
+    res.send(twiml.toString());
 });
 
 /* Routes */
@@ -121,4 +145,5 @@ const shutdown = async (signal) => {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-require("./services/telegramBot");
+const { initTelegramBot } = require("./services/telegramBot");
+initTelegramBot();

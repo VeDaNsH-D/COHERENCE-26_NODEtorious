@@ -4,6 +4,7 @@ const Lead = require("../schemas/lead_schema")
 const Workflow = require("../schemas/workflow_schema")
 const cleanLeads = require("../utils/csv_cleaner")
 const { parseLeadFile } = require("../utils/csvParser")
+const { indexLead, indexLeadsBatch, indexWorkflow } = require("../services/vectorService")
 
 const ML_BASE_URL = process.env.ML_API_URL || 'http://127.0.0.1:5001/api/ml'
 
@@ -295,6 +296,11 @@ const uploadLeads = async (req, res) => {
             ? await Lead.insertMany(scoredLeads, { ordered: false })
             : []
 
+        // Index into RAG vector store
+        indexLeadsBatch(insertedLeads).catch(err =>
+            console.error("RAG batch index failed:", err.message)
+        )
+
         return res.json({
             totalParsed: rows.length,
             totalValid: cleanedLeads.length,
@@ -354,6 +360,11 @@ const enrollLead = async (req, res) => {
             linkedin: profileUrl || "",
             status: "new"
         })
+
+        // Index into RAG vector store
+        indexLead(lead).catch(err =>
+            console.error("RAG index failed for enrolled lead:", err.message)
+        )
 
         res.status(201).json({
             message: "Lead enrolled successfully",
@@ -433,6 +444,11 @@ const getLeadInsights = async (req, res) => {
         lead.best_send_day = best_send_day
         lead.best_send_hour = best_send_hour
         await lead.save()
+
+        // Re-index updated lead into RAG
+        indexLead(lead).catch(err =>
+            console.error("RAG index failed for lead insights:", err.message)
+        )
 
         res.json({
             lead_score,
@@ -570,6 +586,11 @@ const generateLeadWorkflow = async (req, res) => {
             edges,
             created_by: req.user?.userId || undefined
         })
+
+        // Index generated workflow into RAG
+        indexWorkflow(workflow).catch(err =>
+            console.error("RAG index failed for generated workflow:", err.message)
+        )
 
         res.json({
             workflow_template: workflowTemplate,
@@ -717,6 +738,11 @@ const syncLeads = async (req, res) => {
             insertedLeads.push(lead)
             synced++
         }
+
+        // Index synced leads into RAG
+        indexLeadsBatch(insertedLeads).catch(err =>
+            console.error("RAG batch index failed for synced leads:", err.message)
+        )
 
         res.json({
             message: `Synced ${synced} lead(s)`,

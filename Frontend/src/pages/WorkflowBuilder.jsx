@@ -22,6 +22,58 @@ import { socket } from '../utils/socket';
 
 const DND_NODE_TYPE = 'application/x-workflow-node';
 
+const NODE_ICONS = {
+  pageVisit: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+      <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+    </svg>
+  ),
+  formSubmit: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm4.75 6.75a.75.75 0 00-1.5 0v2.546l-.943-1.048a.75.75 0 10-1.114 1.004l2.25 2.5a.75.75 0 001.114 0l2.25-2.5a.75.75 0 10-1.114-1.004l-.943 1.048V8.75z" clipRule="evenodd" />
+    </svg>
+  ),
+  chatReply: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 001.33 0l1.713-3.293a.783.783 0 01.642-.413 41.102 41.102 0 003.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0010 2zM6.75 6a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 2.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z" clipRule="evenodd" />
+    </svg>
+  ),
+  enrichLead: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+    </svg>
+  ),
+  scoreLead: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clipRule="evenodd" />
+    </svg>
+  ),
+  sendFollowUp: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+      <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+    </svg>
+  ),
+  syncCrm: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H4.598a.75.75 0 00-.75.75v3.634a.75.75 0 001.5 0v-2.033l.312.311a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm-9.624-2.849a.75.75 0 00-1.06-1.06 7 7 0 0011.712 3.138.75.75 0 00-1.449-.39 5.5 5.5 0 01-9.203-1.688z" clipRule="evenodd" />
+      <path d="M13.768 7.632a.75.75 0 01.75-.75h3.634a.75.75 0 01.75.75v3.634a.75.75 0 01-1.5 0V9.5h-2.884a.75.75 0 01-.75-.75v-.118z" />
+      <path d="M4.598 12.232a.75.75 0 01.75.75v1.766h2.884a.75.75 0 010 1.5H4.598a.75.75 0 01-.75-.75v-2.516a.75.75 0 01.75-.75z" />
+    </svg>
+  ),
+  waitDelay: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clipRule="evenodd" />
+    </svg>
+  ),
+  ifQualified: (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path fillRule="evenodd" d="M2 3.75A.75.75 0 012.75 3h11.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zM2 7.5a.75.75 0 01.75-.75h6.365a.75.75 0 010 1.5H2.75A.75.75 0 012 7.5zM14 7a.75.75 0 01.55.24l3.25 3.5a.75.75 0 010 1.02l-3.25 3.5a.75.75 0 01-1.1-1.02l2.22-2.39H2.75a.75.75 0 010-1.5h12.92l-2.22-2.39A.75.75 0 0114 7z" clipRule="evenodd" />
+    </svg>
+  ),
+};
+
 const NODE_LIBRARY = [
   {
     id: 'pageVisit',
@@ -29,8 +81,8 @@ const NODE_LIBRARY = [
     subtitle: 'Trigger when a lead visits key pages',
     category: 'trigger',
     group: 'trigger',
-    iconClass: 'bg-violet-400/35',
-    cardClass: 'border-violet-500/45 bg-violet-500/14 hover:bg-violet-500/22',
+    iconClass: 'bg-purple-400/35',
+    cardClass: 'border-purple-500/45 bg-purple-500/14 hover:bg-purple-500/22',
   },
   {
     id: 'formSubmit',
@@ -38,8 +90,8 @@ const NODE_LIBRARY = [
     subtitle: 'Lead submits contact/demo form',
     category: 'trigger',
     group: 'trigger',
-    iconClass: 'bg-emerald-400/35',
-    cardClass: 'border-emerald-500/45 bg-emerald-500/14 hover:bg-emerald-500/22',
+    iconClass: 'bg-purple-400/35',
+    cardClass: 'border-purple-500/45 bg-purple-500/14 hover:bg-purple-500/22',
   },
   {
     id: 'chatReply',
@@ -47,8 +99,8 @@ const NODE_LIBRARY = [
     subtitle: 'Lead engages with website chatbot',
     category: 'trigger',
     group: 'trigger',
-    iconClass: 'bg-fuchsia-400/35',
-    cardClass: 'border-fuchsia-500/45 bg-fuchsia-500/14 hover:bg-fuchsia-500/22',
+    iconClass: 'bg-purple-400/35',
+    cardClass: 'border-purple-500/45 bg-purple-500/14 hover:bg-purple-500/22',
   },
   {
     id: 'enrichLead',
@@ -56,8 +108,8 @@ const NODE_LIBRARY = [
     subtitle: 'Append company and profile data',
     category: 'action',
     group: 'action',
-    iconClass: 'bg-blue-400/35',
-    cardClass: 'border-blue-500/45 bg-blue-500/14 hover:bg-blue-500/22',
+    iconClass: 'bg-orange-400/35',
+    cardClass: 'border-orange-500/45 bg-orange-500/14 hover:bg-orange-500/22',
   },
   {
     id: 'scoreLead',
@@ -65,8 +117,8 @@ const NODE_LIBRARY = [
     subtitle: 'Apply lead scoring logic',
     category: 'action',
     group: 'action',
-    iconClass: 'bg-amber-400/35',
-    cardClass: 'border-amber-500/45 bg-amber-500/14 hover:bg-amber-500/22',
+    iconClass: 'bg-orange-400/35',
+    cardClass: 'border-orange-500/45 bg-orange-500/14 hover:bg-orange-500/22',
   },
   {
     id: 'sendFollowUp',
@@ -74,8 +126,8 @@ const NODE_LIBRARY = [
     subtitle: 'Send email or WhatsApp follow-up',
     category: 'action',
     group: 'action',
-    iconClass: 'bg-rose-400/35',
-    cardClass: 'border-rose-500/45 bg-rose-500/14 hover:bg-rose-500/22',
+    iconClass: 'bg-orange-400/35',
+    cardClass: 'border-orange-500/45 bg-orange-500/14 hover:bg-orange-500/22',
   },
   {
     id: 'syncCrm',
@@ -83,8 +135,8 @@ const NODE_LIBRARY = [
     subtitle: 'Create or update CRM contact/deal',
     category: 'action',
     group: 'action',
-    iconClass: 'bg-sky-400/35',
-    cardClass: 'border-sky-500/45 bg-sky-500/14 hover:bg-sky-500/22',
+    iconClass: 'bg-orange-400/35',
+    cardClass: 'border-orange-500/45 bg-orange-500/14 hover:bg-orange-500/22',
   },
   {
     id: 'waitDelay',
@@ -92,8 +144,8 @@ const NODE_LIBRARY = [
     subtitle: 'Pause flow before next action',
     category: 'wait',
     group: 'logic',
-    iconClass: 'bg-cyan-400/35',
-    cardClass: 'border-cyan-500/45 bg-cyan-500/14 hover:bg-cyan-500/22',
+    iconClass: 'bg-blue-400/35',
+    cardClass: 'border-blue-500/45 bg-blue-500/14 hover:bg-blue-500/22',
   },
   {
     id: 'ifQualified',
@@ -101,8 +153,8 @@ const NODE_LIBRARY = [
     subtitle: 'Branch by score or intent',
     category: 'decision',
     group: 'logic',
-    iconClass: 'bg-lime-400/35',
-    cardClass: 'border-lime-500/45 bg-lime-500/14 hover:bg-lime-500/22',
+    iconClass: 'bg-amber-400/35',
+    cardClass: 'border-amber-500/45 bg-amber-500/14 hover:bg-amber-500/22',
   },
 ];
 
@@ -255,35 +307,35 @@ const TEMPLATE_LIBRARY = [
 const CATEGORY_STYLES = {
   trigger: {
     badge: 'TRIGGER',
-    border: 'border-violet-400/45',
-    glow: 'shadow-[0_0_0_1px_rgba(167,139,250,0.2),0_14px_34px_rgba(139,92,246,0.22)]',
-    dot: 'bg-violet-300',
-    text: 'text-violet-200',
-    header: 'bg-violet-500/18 border-violet-400/30',
+    border: 'border-purple-400/45',
+    glow: 'shadow-[0_0_0_1px_rgba(168,85,247,0.2),0_14px_34px_rgba(168,85,247,0.22)]',
+    dot: 'bg-purple-300',
+    text: 'text-purple-200',
+    header: 'bg-purple-500/18 border-purple-400/30',
   },
   action: {
     badge: 'ACTION',
+    border: 'border-orange-400/40',
+    glow: 'shadow-[0_0_0_1px_rgba(249,115,22,0.2),0_16px_35px_rgba(249,115,22,0.2)]',
+    dot: 'bg-orange-300',
+    text: 'text-orange-200',
+    header: 'bg-orange-500/18 border-orange-400/30',
+  },
+  wait: {
+    badge: 'WAIT',
     border: 'border-blue-400/40',
-    glow: 'shadow-[0_0_0_1px_rgba(96,165,250,0.2),0_16px_35px_rgba(59,130,246,0.2)]',
+    glow: 'shadow-[0_0_0_1px_rgba(59,130,246,0.2),0_16px_35px_rgba(59,130,246,0.2)]',
     dot: 'bg-blue-300',
     text: 'text-blue-200',
     header: 'bg-blue-500/18 border-blue-400/30',
   },
-  wait: {
-    badge: 'WAIT',
-    border: 'border-amber-400/40',
-    glow: 'shadow-[0_0_0_1px_rgba(251,191,36,0.2),0_16px_35px_rgba(251,146,60,0.2)]',
+  decision: {
+    badge: 'DECISION',
+    border: 'border-amber-400/45',
+    glow: 'shadow-[0_0_0_1px_rgba(251,191,36,0.2),0_16px_35px_rgba(245,158,11,0.22)]',
     dot: 'bg-amber-300',
     text: 'text-amber-200',
     header: 'bg-amber-500/18 border-amber-400/30',
-  },
-  decision: {
-    badge: 'DECISION',
-    border: 'border-rose-400/45',
-    glow: 'shadow-[0_0_0_1px_rgba(251,113,133,0.2),0_16px_35px_rgba(225,29,72,0.22)]',
-    dot: 'bg-rose-300',
-    text: 'text-rose-200',
-    header: 'bg-rose-500/18 border-rose-400/30',
   },
 };
 
@@ -653,6 +705,7 @@ function createNodeFromTemplate(template, position) {
       label: template.label,
       subtitle: template.subtitle,
       category: template.category,
+      nodeId: template.id,
       config: {},
     },
   };
@@ -672,14 +725,21 @@ function WorkflowCanvasNode({ data, selected }) {
         className="h-2.5! w-2.5! border-none! bg-white/70! shadow-[0_0_0_2px_rgba(6,7,14,0.85)]"
       />
 
-      <div className={`mb-2 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white/80 ${visual.header}`}>
+      <div className={`mb-2 flex items-center gap-1.5 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white/80 ${visual.header}`}>
         <span className={`h-2 w-2 rounded-full ${visual.dot}`} />
-        <span className="ml-1">{visual.badge}</span>
+        <span>{visual.badge}</span>
       </div>
 
-      <div className="px-1">
-        <div className="text-sm font-semibold text-white">{data.label}</div>
-        <div className={`mt-1 text-xs ${visual.text}`}>{data.subtitle}</div>
+      <div className="flex items-start gap-2.5 px-1">
+        {data.nodeId && NODE_ICONS[data.nodeId] && (
+          <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${visual.header}`}>
+            {NODE_ICONS[data.nodeId]}
+          </span>
+        )}
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-white">{data.label}</div>
+          <div className={`mt-1 text-xs ${visual.text}`}>{data.subtitle}</div>
+        </div>
       </div>
 
       <Handle
@@ -1540,7 +1600,9 @@ function WorkflowBuilderContent() {
                       type="button"
                     >
                       <div className="flex items-center gap-2">
-                        <span className={`h-5 w-5 rounded-md ${template.iconClass}`} />
+                        <span className={`flex h-5 w-5 items-center justify-center rounded-md ${template.iconClass}`}>
+                          {NODE_ICONS[template.id]}
+                        </span>
                         <div>
                           <p className="text-[13px] leading-tight font-semibold text-white/95">{template.label}</p>
                           <p className="text-[10px] leading-snug text-white/45">{template.subtitle}</p>
@@ -1605,6 +1667,20 @@ function WorkflowBuilderContent() {
         <section className="relative h-full min-h-0 overflow-hidden bg-[#04060d]">
           <div className="absolute inset-x-0 top-0 z-20 h-[var(--wf-header)] border-b border-white/8 bg-[#070a13]/94 px-4 backdrop-blur-md">
             <div className="flex h-full flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/8 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-accent/40 hover:text-accent"
+                title="Back to Dashboard"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                </svg>
+                Back
+              </button>
+
+              <div className="mx-1 h-6 w-px bg-white/12" />
+
               <input
                 type="text"
                 value={workflowName}

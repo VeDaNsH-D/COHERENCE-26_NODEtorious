@@ -1,6 +1,7 @@
 const Lead = require("../schemas/lead_schema");
 const Message = require("../schemas/message_schema");
 const WorkflowRun = require("../schemas/workflow_run_schema");
+const { indexAnalytics } = require("../services/vectorService");
 
 const getCampaignAnalytics = async (req, res, next) => {
     try {
@@ -57,7 +58,7 @@ const getCampaignAnalytics = async (req, res, next) => {
             ? Number(((repliedLeads / emailsSent) * 100).toFixed(1))
             : 0;
 
-        return res.status(200).json({
+        const analyticsData = {
             totalLeads,
             emailsSent,
             replies: repliedLeads,
@@ -70,7 +71,14 @@ const getCampaignAnalytics = async (req, res, next) => {
                 completed: completedRuns,
                 failed: failedRuns
             }
-        });
+        };
+
+        // Index analytics snapshot into RAG
+        indexAnalytics(analyticsData).catch(err =>
+            console.error("RAG index failed for analytics:", err.message)
+        );
+
+        return res.status(200).json(analyticsData);
     } catch (error) {
         return next(error);
     }

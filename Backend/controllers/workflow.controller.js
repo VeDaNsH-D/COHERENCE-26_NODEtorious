@@ -1,4 +1,5 @@
 const Workflow = require("../schemas/workflow_schema");
+const { indexWorkflow } = require("../services/vectorService");
 
 const createWorkflow = async (req, res, next) => {
     try {
@@ -15,6 +16,11 @@ const createWorkflow = async (req, res, next) => {
             edges: Array.isArray(edges) ? edges : [],
             created_by: req.user?.userId || undefined
         });
+
+        // Index into RAG vector store
+        indexWorkflow(workflow).catch(err =>
+            console.error("RAG index failed for workflow:", err.message)
+        );
 
         return res.status(201).json({
             message: "Workflow created successfully",
@@ -85,6 +91,11 @@ const updateWorkflow = async (req, res, next) => {
         if (Array.isArray(edges)) workflow.edges = edges;
 
         await workflow.save();
+
+        // Re-index updated workflow into RAG
+        indexWorkflow(workflow).catch(err =>
+            console.error("RAG index failed for workflow update:", err.message)
+        );
 
         return res.status(200).json({
             message: "Workflow updated successfully",

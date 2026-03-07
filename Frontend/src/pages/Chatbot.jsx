@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import chatbotService from '../services/chatbotService';
 
 export default function Chatbot() {
@@ -68,7 +69,7 @@ export default function Chatbot() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)]">
+        <div className="flex flex-col h-[calc(100vh-8.5rem)]">
             {/* Header */}
             <div className="flex items-center gap-3 pb-4 border-b border-border-subtle mb-4">
                 <div className="w-10 h-10 rounded-xl bg-accent-soft flex items-center justify-center">
@@ -105,7 +106,9 @@ export default function Chatbot() {
                                         : 'bg-bg-card border border-border-card text-text-primary rounded-bl-md'
                                     }`}
                             >
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                <div className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-1.5 prose-pre:my-2 prose-pre:bg-black/30 prose-pre:rounded-lg prose-code:text-accent prose-code:before:content-none prose-code:after:content-none prose-strong:text-white prose-a:text-accent">
+                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                </div>
 
                                 {/* Context pill */}
                                 {msg.context && msg.context.length > 0 && (
