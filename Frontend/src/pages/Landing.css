@@ -1,0 +1,848 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@500;600;700&display=swap');
+
+.venti-page {
+  --venti-bg: #0c0702;
+  --venti-bg-soft: #28170a;
+  --venti-panel: rgba(30, 17, 8, 0.78);
+  --venti-border: rgba(255, 255, 255, 0.14);
+  --venti-text-main: #fff5e8;
+  --venti-text-soft: rgba(255, 223, 189, 0.72);
+  --venti-purple: #ff8a2a;
+  --venti-magenta: #ffc15e;
+  --venti-cyan: #ffd36f;
+  --venti-pink: #ff6f1f;
+  --venti-card: linear-gradient(160deg, rgba(87, 44, 12, 0.66), rgba(24, 13, 7, 0.88));
+  --venti-card-alt: linear-gradient(155deg, rgba(74, 34, 9, 0.72), rgba(24, 13, 7, 0.9));
+
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(255, 140, 41, 0.22), transparent 28%),
+    radial-gradient(circle at 95% 25%, rgba(255, 190, 94, 0.16), transparent 34%),
+    linear-gradient(180deg, #110904 0%, #0d0702 38%, #0e0703 64%, #120803 100%);
+  color: var(--venti-text-main);
+  font-family: 'Sora', 'Avenir Next', 'Segoe UI', sans-serif;
+}
+
+.venti-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
+}
+
+.venti-shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.venti-nav-wrap {
+  position: sticky;
+  top: 14px;
+  z-index: 20;
+  padding-top: 0.8rem;
+}
+
+.venti-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 0.85rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--venti-border);
+  background: linear-gradient(160deg, rgba(37, 21, 9, 0.88), rgba(16, 10, 5, 0.92));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.45);
+}
+
+.venti-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--venti-text-main);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.venti-brand-logo {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.venti-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.venti-nav-links a {
+  color: rgba(255, 226, 195, 0.74);
+  text-decoration: none;
+  font-size: 0.79rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  transition: color 0.22s ease;
+}
+
+.venti-nav-links a:hover {
+  color: #ffffff;
+}
+
+.venti-login-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(140deg, rgba(255, 173, 79, 0.62), rgba(235, 106, 17, 0.64));
+  color: #fff8ef;
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 0 24px rgba(255, 138, 42, 0.42);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.venti-login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 34px rgba(255, 151, 64, 0.62);
+}
+
+.venti-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding-top: 3.9rem;
+}
+
+.venti-hero-copy {
+  max-width: 560px;
+}
+
+.venti-kicker {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 224, 194, 0.86);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.venti-hero-copy h1 {
+  margin: 0;
+  font-family: 'Syne', 'Sora', sans-serif;
+  font-size: clamp(2.1rem, 5vw, 3.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.venti-hero-copy p {
+  margin: 1.05rem 0 0;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--venti-text-soft);
+  max-width: 50ch;
+}
+
+.venti-hero-actions {
+  margin-top: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.venti-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  text-decoration: none;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.77rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.venti-btn:hover {
+  transform: translateY(-1px);
+}
+
+.venti-btn-primary {
+  color: #251005;
+  background: linear-gradient(125deg, #ffe2ad 0%, #ffbf6a 35%, #ff7a18 100%);
+  box-shadow: 0 0 28px rgba(255, 140, 41, 0.52);
+}
+
+.venti-btn-ghost {
+  color: #fff4e7;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.venti-hero-visual {
+  position: relative;
+  min-height: 370px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: linear-gradient(170deg, rgba(49, 29, 14, 0.84), rgba(17, 10, 5, 0.9));
+  overflow: hidden;
+  box-shadow: 0 38px 74px rgba(0, 0, 0, 0.52);
+}
+
+.venti-hero-aurora {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 190, 94, 0.3), transparent 34%),
+    radial-gradient(circle at 58% 72%, rgba(255, 126, 33, 0.36), transparent 32%),
+    radial-gradient(circle at 20% 68%, rgba(203, 114, 40, 0.28), transparent 34%);
+}
+
+.venti-coil {
+  position: absolute;
+  inset: 0;
+}
+
+.venti-loop {
+  --left: calc(42px + (var(--idx) * 74px));
+  position: absolute;
+  top: 78px;
+  left: var(--left);
+  width: 116px;
+  height: 208px;
+  border-radius: 999px;
+  background: linear-gradient(170deg, var(--venti-cyan), #ffb347 52%, var(--venti-pink));
+  box-shadow:
+    0 0 42px rgba(255, 197, 106, 0.37),
+    0 0 64px rgba(255, 111, 31, 0.28);
+  animation: venti-float 5.5s ease-in-out infinite;
+  animation-delay: calc(var(--idx) * -0.28s);
+}
+
+.venti-loop::after {
+  content: '';
+  position: absolute;
+  inset: 17px;
+  border-radius: inherit;
+  background: linear-gradient(170deg, rgba(30, 18, 9, 0.95), rgba(14, 9, 5, 0.96));
+}
+
+.venti-floating-card {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.72rem 0.85rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(140deg, rgba(58, 31, 11, 0.86), rgba(19, 12, 6, 0.9));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+.venti-floating-card p {
+  margin: 0;
+  color: rgba(255, 222, 189, 0.72);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+}
+
+.venti-floating-card strong {
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+}
+
+.venti-floating-card-left {
+  left: 1rem;
+  bottom: 1rem;
+}
+
+.venti-floating-card-right {
+  right: 1rem;
+  top: 1rem;
+}
+
+.venti-card-dot {
+  width: 0.52rem;
+  height: 0.52rem;
+  border-radius: 999px;
+  background: #ffca72;
+  box-shadow: 0 0 14px rgba(255, 193, 94, 0.92);
+}
+
+.venti-partners {
+  margin-top: 1.4rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  padding: 1rem;
+}
+
+.venti-partners span {
+  color: rgba(255, 220, 184, 0.56);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+}
+
+.venti-about {
+  display: grid;
+  gap: 1.4rem;
+  align-items: center;
+  grid-template-columns: 1fr;
+  margin-top: 4.7rem;
+}
+
+.venti-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 193, 118, 0.38);
+  color: rgba(255, 233, 210, 0.94);
+  background: rgba(255, 133, 32, 0.2);
+  font-size: 0.63rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 0.35rem 0.7rem;
+}
+
+.venti-about h2,
+.venti-section-title h2 {
+  margin: 0.9rem 0 0;
+  font-family: 'Syne', 'Sora', sans-serif;
+  font-size: clamp(1.65rem, 4vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.022em;
+}
+
+.venti-about p,
+.venti-section-title p {
+  margin: 1rem 0 0;
+  color: var(--venti-text-soft);
+  line-height: 1.75;
+  max-width: 58ch;
+}
+
+.venti-orb-wrap {
+  display: grid;
+  place-items: center;
+}
+
+.venti-orb,
+.venti-orb-hero {
+  width: min(320px, 64vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 25%, #ffd885 0%, transparent 34%),
+    radial-gradient(circle at 70% 72%, #ff8a2a 0%, transparent 32%),
+    conic-gradient(from 20deg, #ffd36f 0%, #ffb347 25%, #ff7a18 50%, #d26a1f 75%, #ffd36f 100%);
+  box-shadow:
+    inset 0 0 46px rgba(255, 255, 255, 0.2),
+    0 0 64px rgba(255, 141, 46, 0.5),
+    0 0 86px rgba(255, 194, 95, 0.34);
+  animation: venti-pulse 8.5s ease-in-out infinite;
+}
+
+.venti-stats {
+  margin-top: 2.2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.venti-stat-item {
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.1rem 1rem;
+}
+
+.venti-stat-item strong {
+  display: block;
+  font-size: 1.68rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.18rem;
+}
+
+.venti-stat-item span {
+  color: rgba(255, 219, 180, 0.62);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.61rem;
+}
+
+.venti-services,
+.venti-process,
+.venti-testimonials {
+  margin-top: 4.5rem;
+}
+
+.venti-section-title {
+  margin-bottom: 1.35rem;
+}
+
+.venti-service-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.venti-service-card {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: var(--venti-card);
+  padding: 1rem;
+}
+
+.venti-service-art {
+  border-radius: 18px;
+  height: 170px;
+  background:
+    radial-gradient(circle at 25% 26%, rgba(255, 205, 109, 0.86), transparent 28%),
+    radial-gradient(circle at 72% 72%, rgba(255, 124, 29, 0.82), transparent 34%),
+    radial-gradient(circle at 50% 54%, rgba(214, 119, 43, 0.82), rgba(49, 26, 11, 0.78) 56%);
+  box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.15);
+}
+
+.venti-service-card h3 {
+  margin: 1rem 0 0;
+  font-size: 1.2rem;
+}
+
+.venti-service-card p {
+  margin: 0.8rem 0 0;
+  color: var(--venti-text-soft);
+  line-height: 1.75;
+}
+
+.venti-why {
+  margin-top: 4.5rem;
+  padding: 4rem 0;
+  background: linear-gradient(160deg, rgba(78, 43, 16, 0.93), rgba(39, 22, 10, 0.96));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.venti-why-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.venti-why-title p {
+  margin-inline: auto;
+}
+
+.venti-why-layout {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: 1fr;
+}
+
+.venti-why-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.venti-why-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(29, 16, 8, 0.7);
+  padding: 1rem;
+}
+
+.venti-why-card svg {
+  color: #ffc76f;
+}
+
+.venti-why-card h3 {
+  margin: 0.65rem 0 0;
+  font-size: 1rem;
+}
+
+.venti-why-card p {
+  margin: 0.6rem 0 0;
+  color: var(--venti-text-soft);
+  line-height: 1.65;
+  font-size: 0.93rem;
+}
+
+.venti-orb-hero {
+  margin-inline: auto;
+}
+
+.venti-process-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.venti-process-card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: var(--venti-card-alt);
+  padding: 1rem;
+}
+
+.venti-process-card span {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  color: rgba(255, 224, 191, 0.86);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.59rem;
+}
+
+.venti-process-card h3 {
+  margin: 0.9rem 0 0;
+  min-height: 3.1em;
+  font-size: 1.06rem;
+  line-height: 1.45;
+}
+
+.venti-process-card button {
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff4e6;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.venti-wave {
+  position: relative;
+  z-index: 2;
+  margin-top: 4rem;
+  min-height: 220px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.venti-wave-ribbon {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 199, 112, 0.32), transparent 24%),
+    conic-gradient(from 80deg, rgba(255, 191, 92, 0.48), rgba(255, 132, 31, 0.55), rgba(255, 214, 130, 0.36), rgba(255, 191, 92, 0.48));
+  filter: saturate(135%) blur(24px);
+  transform: scale(1.15) rotate(-4deg);
+}
+
+.venti-play-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: linear-gradient(145deg, rgba(255, 190, 93, 0.78), rgba(236, 106, 18, 0.74));
+  color: white;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 38px rgba(255, 139, 42, 0.58);
+}
+
+.venti-testimonial-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.venti-testimonial-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.venti-testimonial-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(160deg, rgba(70, 37, 11, 0.68), rgba(20, 11, 6, 0.92));
+  padding: 1rem;
+}
+
+.venti-stars {
+  display: inline-flex;
+  gap: 0.2rem;
+  color: #ffd99a;
+}
+
+.venti-testimonial-card p {
+  margin: 0.9rem 0 0;
+  line-height: 1.75;
+  color: rgba(255, 229, 200, 0.82);
+}
+
+.venti-testimonial-user {
+  margin-top: 1rem;
+}
+
+.venti-testimonial-user span {
+  display: block;
+  font-weight: 700;
+}
+
+.venti-testimonial-user small {
+  color: rgba(255, 224, 191, 0.6);
+}
+
+.venti-footer {
+  margin-top: 4.5rem;
+  padding: 2.4rem 0 1.2rem;
+  background: linear-gradient(170deg, rgba(74, 40, 13, 0.93), rgba(34, 19, 9, 0.96));
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.venti-footer-top {
+  display: grid;
+  gap: 1rem;
+}
+
+.venti-subscribe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.venti-subscribe input {
+  flex: 1 1 210px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  padding: 0.64rem 0.95rem;
+  font-size: 0.85rem;
+}
+
+.venti-subscribe button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(255, 188, 88, 0.7), rgba(239, 108, 19, 0.7));
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.64rem 0.95rem;
+}
+
+.venti-footer-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.venti-footer-nav a {
+  color: rgba(255, 224, 191, 0.74);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.7rem;
+}
+
+.venti-footer-main {
+  margin-top: 1.8rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.venti-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+}
+
+.venti-footer-contact h4 {
+  margin: 0;
+  font-size: 0.69rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(255, 219, 180, 0.72);
+}
+
+.venti-footer-contact p {
+  margin: 0.52rem 0 0;
+  color: rgba(255, 232, 208, 0.86);
+  font-size: 0.88rem;
+}
+
+.venti-footer-bottom {
+  margin-top: 1.4rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  color: rgba(255, 220, 184, 0.66);
+  font-size: 0.78rem;
+}
+
+.venti-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.venti-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 0.32rem 0.56rem;
+}
+
+@keyframes venti-float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-8deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(-8deg);
+  }
+}
+
+@keyframes venti-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@media (min-width: 860px) {
+  .venti-hero {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    min-height: 84vh;
+  }
+
+  .venti-about {
+    grid-template-columns: 1.08fr 0.92fr;
+  }
+
+  .venti-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .venti-service-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .venti-why-layout {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .venti-process-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .venti-testimonial-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .venti-footer-top {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .venti-footer-main {
+    grid-template-columns: 1.3fr repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .venti-nav-links {
+    display: none;
+  }
+
+  .venti-loop {
+    --left: calc(20px + (var(--idx) * 66px));
+    width: 100px;
+    height: 188px;
+  }
+}
+
+@media (max-width: 700px) {
+  .venti-login-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.66rem;
+  }
+
+  .venti-hero {
+    padding-top: 2.6rem;
+  }
+
+  .venti-hero-visual {
+    min-height: 330px;
+  }
+
+  .venti-loop {
+    --left: calc(10px + (var(--idx) * 53px));
+    top: 88px;
+    width: 80px;
+    height: 150px;
+  }
+
+  .venti-loop::after {
+    inset: 12px;
+  }
+
+  .venti-floating-card {
+    transform: scale(0.9);
+  }
+
+  .venti-wave {
+    min-height: 180px;
+  }
+
+  .venti-play-btn {
+    width: 62px;
+    height: 62px;
+  }
+}
