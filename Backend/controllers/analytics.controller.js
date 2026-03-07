@@ -12,6 +12,59 @@ const getCampaignAnalytics = async (req, res, next) => {
         }
 
         const workflowRunFilter = workflowId ? { workflow_id: workflowId } : {};
+        let leadScopeFilter = {};
+        let messageScopeFilter = {};
+
+        if (workflowId) {
+            const scopedRuns = await WorkflowRun.find(workflowRunFilter)
+                .select("_id lead_id")
+                .lean();
+
+            const workflowRunIds = scopedRuns
+                .map((run) => run?._id)
+                .filter(Boolean);
+
+            const uniqueLeadIds = Array.from(new Set(
+                scopedRuns
+                    .map((run) => run?.lead_id?.toString())
+                    .filter(Boolean)
+            ));
+
+            const leadIds = uniqueLeadIds;
+
+            leadScopeFilter = {
+                _id: { $in: leadIds }
+            };
+
+            messageScopeFilter = {
+                workflow_run_id: { $in: workflowRunIds }
+            };
+        }
+
+        const sentEmailFilter = {
+            ...messageScopeFilter,
+            channel: "email",
+            status: "sent",
+            $or: [
+                { direction: "outgoing" },
+                { direction: { $exists: false } }
+            ]
+        };
+
+        const repliedLeadFilter = {
+            ...leadScopeFilter,
+            status: "replied"
+        };
+
+        const convertedLeadFilter = {
+            ...leadScopeFilter,
+            status: "converted"
+        };
+
+        const averageScoreMatch = {
+            ...leadScopeFilter,
+            lead_score: { $ne: null }
+        };
 
         // Date boundaries for trend calculations
         const now = new Date();
@@ -39,27 +92,18 @@ const getCampaignAnalytics = async (req, res, next) => {
             conversionsToday,
             conversionsYesterday
         ] = await Promise.all([
-            Lead.countDocuments(),
-            Message.countDocuments({
-                channel: "email",
-                status: "sent",
-                $or: [
-                    { direction: "outgoing" },
-                    { direction: { $exists: false } }
-                ]
-            }),
-            Lead.countDocuments({ status: "replied" }),
-            Lead.countDocuments({ status: "converted" }),
-            Lead.countDocuments({ status: "new" }),
-            Lead.countDocuments({ status: "contacted" }),
+            Lead.countDocuments(leadScopeFilter),
+            Message.countDocuments(sentEmailFilter),
+            Lead.countDocuments(repliedLeadFilter),
+            Lead.countDocuments(convertedLeadFilter),
+            Lead.countDocuments({ ...leadScopeFilter, status: "new" }),
+            Lead.countDocuments({ ...leadScopeFilter, status: "contacted" }),
             WorkflowRun.countDocuments({ ...workflowRunFilter, status: "running" }),
             WorkflowRun.countDocuments({ ...workflowRunFilter, status: "completed" }),
             WorkflowRun.countDocuments({ ...workflowRunFilter, status: "failed" }),
             Lead.aggregate([
                 {
-                    $match: {
-                        lead_score: { $ne: null }
-                    }
+                    $match: averageScoreMatch
                 },
                 {
                     $group: {

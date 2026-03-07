@@ -21,6 +21,12 @@ const workflowSchema = new mongoose.Schema(
             default: []
         },
 
+        status: {
+            type: String,
+            enum: ["draft", "active", "paused", "completed", "failed", "running"],
+            default: "draft"
+        },
+
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"

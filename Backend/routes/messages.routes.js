@@ -3,11 +3,142 @@ const router = express.Router();
 const emailService = require('../services/emailService');
 const Message = require('../schemas/message_schema');
 const Lead = require('../schemas/lead_schema');
+const { generateEmail } = require('../services/llmService');
 
 const clampScore = (value) => {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, Math.min(1, value));
 };
+
+const normalizeTone = (tone) => {
+  const value = String(tone || 'professional').toLowerCase().trim();
+  if (['professional', 'casual', 'urgent'].includes(value)) return value;
+  return 'professional';
+};
+
+const normalizeLength = (length) => {
+  const value = String(length || 'medium').toLowerCase().trim();
+  if (['short', 'medium', 'long'].includes(value)) return value;
+  return 'medium';
+};
+
+const toneToEmailType = {
+  professional: 'cold_email',
+  casual: 'followup_1',
+  urgent: 'followup_2',
+};
+
+const buildGenerationLead = (payload, leadDoc = null) => {
+  const bodyLead = payload.lead || {};
+
+  return {
+    name: payload.leadName || bodyLead.name || leadDoc?.name || '',
+    email: payload.email || bodyLead.email || leadDoc?.email || '',
+    company: payload.company || bodyLead.company || leadDoc?.company || '',
+    role: payload.role || bodyLead.role || leadDoc?.role || '',
+    industry: payload.industry || bodyLead.industry || leadDoc?.industry || '',
+    seniority: payload.seniority || bodyLead.seniority || leadDoc?.seniority || '',
+    company_size: payload.companySize || bodyLead.company_size || leadDoc?.company_size || '',
+    lead_source: payload.leadSource || bodyLead.lead_source || leadDoc?.lead_source || '',
+    lead_score:
+      payload.leadScore != null
+        ? Number(payload.leadScore)
+        : leadDoc?.lead_score != null
+          ? Number(leadDoc.lead_score)
+          : null,
+  };
+};
+
+const buildLengthHint = (length) => {
+  if (length === 'short') return 'Keep it concise: around 50-80 words.';
+  if (length === 'long') return 'Write a fuller version: around 130-170 words.';
+  return 'Use a balanced medium length: around 90-120 words.';
+};
+
+/**
+ * @route POST /api/messages/generate
+ * @desc Generates an AI outreach message from lead/campaign context
+ * @access Public/Private
+ */
+router.post('/generate', async (req, res) => {
+  try {
+    const {
+      leadId,
+      additionalContext,
+      context,
+      tone,
+      length,
+      campaignContext: rawCampaignContext,
+    } = req.body || {};
+
+    let leadDoc = null;
+    if (leadId) {
+      leadDoc = await Lead.findById(leadId);
+      if (!leadDoc) {
+        return res.status(404).json({ error: 'Lead not found' });
+      }
+    }
+
+    const finalTone = normalizeTone(tone);
+    const finalLength = normalizeLength(length);
+    const lead = buildGenerationLead(req.body || {}, leadDoc);
+
+    const campaignContext = {
+      team_name:
+        rawCampaignContext?.team_name ||
+        rawCampaignContext?.teamName ||
+        'Scout Team',
+      product_name:
+        rawCampaignContext?.product_name ||
+        rawCampaignContext?.productName ||
+        'Scout AI',
+      product_description:
+        rawCampaignContext?.product_description ||
+        rawCampaignContext?.productDescription ||
+        'AI-powered outreach automation and campaign optimization platform',
+      pain_point:
+        rawCampaignContext?.pain_point ||
+        rawCampaignContext?.painPoint ||
+        'inconsistent campaign performance and low reply rates',
+      goal:
+        rawCampaignContext?.goal ||
+        'book a short discovery call',
+    };
+
+    const promptHints = [
+      `Preferred tone: ${finalTone}.`,
+      buildLengthHint(finalLength),
+    ];
+
+    if (additionalContext) {
+      promptHints.push(`Additional context: ${String(additionalContext).trim()}`);
+    }
+    if (context) {
+      promptHints.push(`Extra context: ${String(context).trim()}`);
+    }
+    if (leadDoc?.insights?.length) {
+      promptHints.push(...leadDoc.insights.slice(0, 8));
+    }
+
+    const generated = await generateEmail(
+      lead,
+      promptHints,
+      campaignContext,
+      toneToEmailType[finalTone] || 'cold_email',
+    );
+
+    return res.status(200).json({
+      subject: generated.subject,
+      body: generated.body,
+      tone: finalTone,
+      length: finalLength,
+      source: leadDoc ? 'lead-context' : 'manual-context',
+    });
+  } catch (error) {
+    console.error('[Routes] Error generating message:', error.message);
+    return res.status(500).json({ error: 'Failed to generate message' });
+  }
+});
 
 /**
  * @route POST /api/messages/send-email
@@ -22,7 +153,6 @@ router.post('/send-email', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: email, subject, message' });
     }
 
-    // Mock send email
     const result = await emailService.sendEmail(email, subject, message);
 
     // Save message record
@@ -52,8 +182,24 @@ router.post('/send-email', async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      message: result.success ? 'Email sent successfully' : 'Email failed to send',
+    const statusCode = result.success
+      ? 200
+      : result.code === 'EMAIL_NOT_CONFIGURED'
+        ? 503
+        : result.code === 'EMAIL_INVALID_PAYLOAD'
+          ? 400
+          : 502;
+
+    const failureMessage =
+      result.error ||
+      (result.code === 'EMAIL_NOT_CONFIGURED'
+        ? 'SMTP is not configured on the server.'
+        : 'Email failed to send');
+
+    res.status(statusCode).json({
+      message: result.success ? 'Email sent successfully' : failureMessage,
+      code: result.code,
+      error: result.success ? null : result.error || null,
       result,
       leadStatusUpdate,
     });

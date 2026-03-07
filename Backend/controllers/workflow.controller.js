@@ -3,7 +3,7 @@ const { indexWorkflow } = require("../services/vectorService");
 
 const createWorkflow = async (req, res, next) => {
     try {
-        const { name, description, nodes = [], edges = [] } = req.body;
+        const { name, description, nodes = [], edges = [], status = "draft" } = req.body;
 
         if (!name) {
             return res.status(400).json({ message: "name is required" });
@@ -14,6 +14,7 @@ const createWorkflow = async (req, res, next) => {
             description,
             nodes: Array.isArray(nodes) ? nodes : [],
             edges: Array.isArray(edges) ? edges : [],
+            status,
             created_by: req.user?.userId || undefined
         });
 
@@ -73,7 +74,7 @@ const getWorkflowById = async (req, res, next) => {
 const updateWorkflow = async (req, res, next) => {
     try {
         const { workflowId } = req.params;
-        const { name, description, nodes, edges } = req.body;
+        const { name, description, nodes, edges, status } = req.body;
 
         const workflow = await Workflow.findById(workflowId);
 
@@ -89,6 +90,7 @@ const updateWorkflow = async (req, res, next) => {
         if (description !== undefined) workflow.description = description;
         if (Array.isArray(nodes)) workflow.nodes = nodes;
         if (Array.isArray(edges)) workflow.edges = edges;
+        if (status !== undefined) workflow.status = status;
 
         await workflow.save();
 
