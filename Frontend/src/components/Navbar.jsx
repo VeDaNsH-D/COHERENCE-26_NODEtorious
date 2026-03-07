@@ -4,7 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import logo from '../assets/logo.svg';
 
-const navItems = ['Features', 'Workflow', 'Dashboard', 'How it Works', 'Security'];
+const navItems = [
+  { label: 'Features', href: '#features' },
+  { label: 'Workflow', href: '#workflow' },
+  { label: 'Dashboard', href: '#dashboard' },
+  { label: 'Security', href: '#security' },
+  { label: 'Get Started', href: '#howitworks' },
+];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -21,11 +27,11 @@ export default function Navbar() {
           <div className="hidden items-center gap-7 lg:flex">
             {navItems.map((item) => (
               <a
-                key={item}
-                href="#"
+                key={item.label}
+                href={item.href}
                 className="text-sm text-white/65 transition-colors hover:text-white"
               >
-                {item}
+                {item.label}
               </a>
             ))}
           </div>
@@ -65,12 +71,12 @@ export default function Navbar() {
             >
               {navItems.map((item) => (
                 <a
-                  key={item}
-                  href="#"
+                  key={item.label}
+                  href={item.href}
                   className="block text-sm text-white/80 transition-colors hover:text-white"
                   onClick={() => setMobileOpen(false)}
                 >
-                  {item}
+                  {item.label}
                 </a>
               ))}
               <div className="flex gap-3 pt-1">

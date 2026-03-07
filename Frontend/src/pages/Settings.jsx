@@ -55,7 +55,7 @@ export default function Settings() {
         {/* Settings Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Settings */}
-          <div className="bg-bg-card border border-border-card rounded-xl p-6">
+          <div className="glass-panel rounded-2xl p-6">
             <h2 className="text-2xl font-bold text-text-primary mb-6">Profile Settings</h2>
 
             <div className="space-y-4">
@@ -118,7 +118,7 @@ export default function Settings() {
           </div>
 
           {/* API Settings */}
-          <div className="bg-bg-card border border-border-card rounded-xl p-6">
+          <div className="glass-panel rounded-2xl p-6">
             <h2 className="text-xl font-bold text-text-primary mb-6">API Configuration</h2>
 
             <div className="space-y-4">
@@ -154,7 +154,7 @@ export default function Settings() {
           </div>
 
           {/* Notification Settings */}
-          <div className="bg-bg-card border border-border-card rounded-xl p-6">
+          <div className="glass-panel rounded-2xl p-6">
             <h2 className="text-xl font-bold text-text-primary mb-6">Notification Preferences</h2>
 
             <div className="space-y-3">

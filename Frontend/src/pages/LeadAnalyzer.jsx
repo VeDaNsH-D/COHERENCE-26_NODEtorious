@@ -119,7 +119,7 @@ export default function LeadAnalyzer() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Input Form Panel */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-bg-card border border-border-card rounded-xl p-6">
+          <div className="glass-panel rounded-2xl p-6">
             <h3 className="text-lg font-bold text-text-primary mb-4">Lead Features</h3>
 
             <div className="space-y-4">
@@ -209,7 +209,7 @@ export default function LeadAnalyzer() {
               {/* Score and Send Time Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Lead Score Card */}
-                <div className="bg-bg-card border border-border-card rounded-xl p-6">
+                <div className="glass-panel rounded-2xl p-6">
                   <h3 className="text-sm text-text-secondary mb-2">Predicted Reply Probability</h3>
                   <div className="flex items-baseline gap-2">
                     <p className="text-4xl font-bold text-accent">
@@ -225,7 +225,7 @@ export default function LeadAnalyzer() {
                 </div>
 
                 {/* Best Send Time Card */}
-                <div className="bg-bg-card border border-border-card rounded-xl p-6">
+                <div className="glass-panel rounded-2xl p-6">
                   <h3 className="text-sm text-text-secondary mb-2">Optimal Send Time</h3>
                   <p className="text-2xl font-bold text-text-primary mb-1">
                     {result.best_send_day}
@@ -238,7 +238,7 @@ export default function LeadAnalyzer() {
               </div>
 
               {/* Insights Panel */}
-              <div className="bg-bg-card border border-border-card rounded-xl p-6">
+              <div className="glass-panel rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
                   <span className="text-accent">💡</span> AI Insights
                 </h3>
@@ -257,7 +257,7 @@ export default function LeadAnalyzer() {
               </div>
 
               {/* Workflow Template Visualizer */}
-              <div className="bg-bg-card border border-border-card rounded-xl p-6">
+              <div className="glass-panel rounded-2xl p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
                     <span className="text-accent">⚡</span> Generated Workflow: {result.workflow_template?.workflow_name || 'Custom Outreach'}
@@ -318,7 +318,7 @@ export default function LeadAnalyzer() {
               </div>
             </>
           ) : (
-            <div className="h-full min-h-[400px] flex items-center justify-center bg-bg-card border border-border-card rounded-xl border-dashed">
+            <div className="h-full min-h-[400px] flex items-center justify-center glass-panel rounded-2xl border-dashed">
               <div className="text-center">
                 <div className="text-4xl mb-4">🤖</div>
                 <p className="text-text-secondary">Enter lead details and click "Analyze Lead" to generate insights.</p>

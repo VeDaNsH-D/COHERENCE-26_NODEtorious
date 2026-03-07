@@ -119,8 +119,8 @@ export default function CampaignMonitor() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Workflow List */}
-        <div className="lg:col-span-1 bg-bg-card border border-border-card rounded-xl overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-border-subtle flex items-center justify-between">
+        <div className="lg:col-span-1 glass-panel rounded-2xl overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-white/[0.08] flex items-center justify-between">
             <h3 className="font-semibold text-text-primary">All Campaigns</h3>
             <button onClick={fetchWorkflows} className="text-accent hover:text-accent-hover text-xs">
               Refresh
@@ -165,7 +165,7 @@ export default function CampaignMonitor() {
           {selectedWorkflow ? (
             <>
               {/* Overview Card */}
-              <div className="bg-bg-card border border-border-card rounded-xl p-6">
+              <div className="glass-panel rounded-2xl p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h2 className="text-2xl font-bold text-text-primary">{selectedWorkflow.name}</h2>
@@ -211,7 +211,7 @@ export default function CampaignMonitor() {
               {/* Performance Charts */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Email Delivery */}
-                <div className="bg-bg-card border border-border-card rounded-xl p-6">
+                <div className="glass-panel glass-panel-hover rounded-2xl p-6">
                   <h3 className="text-sm font-semibold text-text-secondary mb-4">Email Delivery</h3>
                   <div className="space-y-3">
                     <div>
@@ -242,7 +242,7 @@ export default function CampaignMonitor() {
                 </div>
 
                 {/* Funnel */}
-                <div className="bg-bg-card border border-border-card rounded-xl p-6">
+                <div className="glass-panel glass-panel-hover rounded-2xl p-6">
                   <h3 className="text-sm font-semibold text-text-secondary mb-4">Conversion Funnel</h3>
                   <div className="space-y-2">
                     <div className="p-2 bg-bg-card-hover rounded text-xs text-text-secondary">
@@ -289,7 +289,7 @@ export default function CampaignMonitor() {
               </div>
             </>
           ) : (
-            <div className="bg-bg-card border border-border-card rounded-xl p-12 text-center">
+            <div className="glass-panel rounded-2xl p-12 text-center">
               <p className="text-text-muted">Select a campaign to view details</p>
             </div>
           )}
