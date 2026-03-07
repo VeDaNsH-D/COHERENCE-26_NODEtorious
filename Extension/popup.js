@@ -172,7 +172,7 @@ document.getElementById('enrollBtn')?.addEventListener('click', () => {
 
     chrome.runtime.sendMessage({ action: 'enrollLead', leadData: lead }, (response) => {
         if (response && response.success) {
-            showSuccess('✅ Lead sent to AuraReach!');
+            showSuccess('✅ Lead sent to Scout!');
         } else {
             showError('Failed to enrol lead. Check backend connection.');
         }
@@ -303,7 +303,7 @@ document.getElementById('exportBtn')?.addEventListener('click', async () => {
     }
     const blob = new Blob([JSON.stringify(leads, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    await chrome.downloads.download({ url, filename: 'aurareach_leads.json', saveAs: true });
+    await chrome.downloads.download({ url, filename: 'scout_leads.json', saveAs: true });
     URL.revokeObjectURL(url);
 });
 
