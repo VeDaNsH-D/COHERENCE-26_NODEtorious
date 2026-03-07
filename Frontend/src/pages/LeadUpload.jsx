@@ -249,7 +249,7 @@ export default function LeadUpload() {
           </div>
 
           {/* CSV Template */}
-          <div className="bg-bg-card-hover border border-border-card rounded-xl p-6">
+          <div className="glass-panel rounded-2xl p-6">
             <h3 className="text-lg font-bold text-text-primary mb-3">CSV Template</h3>
             <p className="text-text-secondary text-sm mb-3">
               Your CSV should have columns: name, email, company, phone (optional), position (optional)
@@ -299,8 +299,8 @@ export default function LeadUpload() {
 
       {/* Lead Detail Panel */}
       {selectedLead && (
-        <div className="bg-bg-card border border-border-card rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-border-subtle flex justify-between items-center">
+        <div className="glass-panel glass-panel-hover rounded-2xl overflow-hidden">
+          <div className="p-6 border-b border-white/[0.08] flex justify-between items-center">
             <h2 className="text-lg font-bold text-text-primary">
               {selectedLead.name || selectedLead.email}
             </h2>
@@ -393,8 +393,8 @@ export default function LeadUpload() {
       )}
 
       {/* Current Leads */}
-      <div className="bg-bg-card border border-border-card rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-border-subtle flex justify-between items-center">
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        <div className="p-6 border-b border-white/[0.08] flex justify-between items-center">
           <h2 className="text-lg font-bold text-text-primary">Recent Leads</h2>
           <span className="text-text-muted text-sm">{leads.length} total</span>
         </div>

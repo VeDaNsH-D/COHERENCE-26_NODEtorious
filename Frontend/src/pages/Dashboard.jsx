@@ -57,7 +57,7 @@ function MetricModule({ metric, index }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: index * 0.08 }}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_12px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+      className="relative overflow-hidden glass-panel glass-panel-hover rounded-2xl p-6"
     >
       <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-orange-500/20 blur-2xl" />
       <div className="flex items-start justify-between gap-4">
@@ -83,7 +83,7 @@ function StatusRing({ label, value, total, color, icon: Icon, index }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.35 + index * 0.1 }}
-      className="rounded-2xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_10px_24px_rgba(0,0,0,0.26)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+      className="glass-panel glass-panel-hover rounded-2xl p-6"
     >
       <div className="flex items-center justify-between">
         <div>
@@ -225,7 +225,7 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.28)]"
+        className="glass-panel rounded-3xl p-6"
       >
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
@@ -276,7 +276,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="xl:col-span-8 rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+          className="xl:col-span-8 glass-panel glass-panel-hover rounded-3xl p-6"
         >
           <div className="mb-6 flex items-center justify-between">
             <div>
@@ -316,7 +316,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-xl shadow-[0_12px_26px_rgba(0,0,0,0.26)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="mt-6 glass-panel glass-panel-hover rounded-2xl p-6">
             <p className="mb-3 text-xs uppercase tracking-[0.18em] text-white/45">Live Campaign Queue</p>
             {loading ? (
               <p className="text-sm text-white/40">Loading workflows...</p>
@@ -349,7 +349,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.28 }}
           className="space-y-5 xl:col-span-4"
         >
-          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="glass-panel glass-panel-hover rounded-3xl p-6">
             <h3 className="mb-4 text-[18px] font-semibold text-white">System Status</h3>
             <div className="space-y-3">
               {statusItems.map((item, index) => (
@@ -369,7 +369,7 @@ export default function Dashboard() {
           <motion.div
             whileHover={{ y: -4 }}
             transition={{ duration: 0.25 }}
-            className="rounded-3xl border border-white/[0.08] bg-white/[0.05] p-6 text-white backdrop-blur-xl shadow-[0_14px_32px_rgba(0,0,0,0.3)]"
+            className="glass-panel rounded-3xl p-6 text-white"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Quick Action</p>
             <h3 className="mt-2 text-[18px] font-semibold">Create Workflow</h3>
