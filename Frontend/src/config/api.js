@@ -44,6 +44,8 @@ export const API_ENDPOINTS = {
   // Messages
   MESSAGES: {
     LIST: '/api/messages',
+    GENERATE: '/api/messages/generate',
+    SEND_EMAIL: '/api/messages/send-email',
   },
   // Chatbot
   CHATBOT: {

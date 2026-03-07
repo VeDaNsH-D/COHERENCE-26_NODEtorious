@@ -7,6 +7,8 @@ export default function Sidebar({ open, onToggle }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [isHoverExpanded, setIsHoverExpanded] = useState(false);
+  const isExpanded = open || isHoverExpanded;
 
   const handleLogout = () => {
     logout();
@@ -81,8 +83,15 @@ export default function Sidebar({ open, onToggle }) {
   return (
     <div
       className="bg-black/40 backdrop-blur-xl border-r border-white/[0.06] flex flex-col h-screen relative"
+      onMouseEnter={() => {
+        if (!open) setIsHoverExpanded(true);
+      }}
+      onMouseLeave={() => {
+        setIsHoverExpanded(false);
+        setHoveredItem(null);
+      }}
       style={{
-        width: open ? 220 : 72,
+        width: isExpanded ? 220 : 72,
         transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
       }}
     >
@@ -97,22 +106,22 @@ export default function Sidebar({ open, onToggle }) {
       {/* Logo + Toggle */}
       <div
         className="flex items-center border-b border-white/[0.06] relative z-10"
-        style={{ justifyContent: open ? 'space-between' : 'center', padding: open ? 20 : 12 }}
+        style={{ justifyContent: isExpanded ? 'space-between' : 'center', padding: isExpanded ? 20 : 12 }}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
           <img src="/scout-logo.svg" alt="Scout" className="h-7 w-7 flex-shrink-0 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-          {open && (
+          {isExpanded && (
             <span className="text-lg font-semibold text-gradient-accent whitespace-nowrap">Scout</span>
           )}
         </div>
         <button
           onClick={onToggle}
           className="hover-lift p-1.5 hover:bg-white/[0.06] rounded-lg transition-all duration-200 text-white/40 hover:text-white/80 flex-shrink-0"
-          style={{ marginLeft: open ? 0 : undefined, position: open ? 'static' : 'absolute', right: open ? undefined : -12, top: open ? undefined : 16, background: open ? 'transparent' : 'rgba(0,0,0,0.6)', border: open ? 'none' : '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}
+          style={{ marginLeft: isExpanded ? 0 : undefined, position: isExpanded ? 'static' : 'absolute', right: isExpanded ? undefined : -12, top: isExpanded ? undefined : 16, background: isExpanded ? 'transparent' : 'rgba(0,0,0,0.6)', border: isExpanded ? 'none' : '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}
           title={open ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }}
+            style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }}
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -122,20 +131,20 @@ export default function Sidebar({ open, onToggle }) {
       {/* Nav */}
       <nav
         className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden relative z-10"
-        style={{ padding: open ? 20 : 12 }}
+        style={{ padding: isExpanded ? 20 : 12 }}
       >
         {menuItems.map((item) => (
           <div key={item.path} className="relative">
             <Link
               to={item.path}
-              onMouseEnter={() => !open && setHoveredItem(item.path)}
+              onMouseEnter={() => !isExpanded && setHoveredItem(item.path)}
               onMouseLeave={() => setHoveredItem(null)}
               className={`hover-lift flex items-center w-full p-2.5 rounded-xl transition-all duration-200 relative group
                 ${isActive(item.path)
                   ? 'rounded-full bg-gradient-to-r from-orange-500/25 to-orange-400/10 text-orange-300 border border-orange-300/40 shadow-[0_10px_24px_rgba(249,115,22,0.22)]'
                   : 'text-white/40 hover:text-white/80 hover:bg-white/[0.05] border border-transparent'
                 }`}
-              style={{ justifyContent: open ? 'flex-start' : 'center', gap: open ? 12 : 0 }}
+              style={{ justifyContent: isExpanded ? 'flex-start' : 'center', gap: isExpanded ? 12 : 0 }}
             >
               <span
                 className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all duration-200 ${
@@ -148,13 +157,13 @@ export default function Sidebar({ open, onToggle }) {
                   {item.icon}
                 </svg>
               </span>
-              {open && (
+              {isExpanded && (
                 <span className="text-sm whitespace-nowrap overflow-hidden">{item.label}</span>
               )}
             </Link>
 
             {/* Hover tooltip — only when collapsed */}
-            {!open && hoveredItem === item.path && (
+            {!isExpanded && hoveredItem === item.path && (
               <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-black/80 backdrop-blur-lg border border-white/10 rounded-lg text-xs text-white whitespace-nowrap z-50 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                 {item.label}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-black/80" />
@@ -166,12 +175,12 @@ export default function Sidebar({ open, onToggle }) {
 
       {/* Footer */}
       <div
-        className={`border-t border-white/[0.06] flex items-center gap-2 relative z-10 ${open ? 'justify-between' : 'flex-col justify-center'}`}
-        style={{ padding: open ? 20 : 12 }}
+        className={`border-t border-white/[0.06] flex items-center gap-2 relative z-10 ${isExpanded ? 'justify-between' : 'flex-col justify-center'}`}
+        style={{ padding: isExpanded ? 20 : 12 }}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
           <ProfileAvatar user={user} size="w-8 h-8" />
-          {open && (
+          {isExpanded && (
             <span className="text-xs text-white/60 truncate max-w-[120px]">
               {user?.full_name || user?.name || user?.email || ''}
             </span>

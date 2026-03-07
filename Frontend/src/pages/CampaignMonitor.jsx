@@ -3,6 +3,13 @@ import workflowsService from '../services/workflowsService';
 import analyticsService from '../services/analyticsService';
 import { mockCampaigns } from '../utils/mockData';
 
+const getWorkflowId = (workflow) => workflow?._id || workflow?.id || null;
+const isMongoObjectId = (value) => /^[a-f\d]{24}$/i.test(String(value || ''));
+const toCsvLine = (values) =>
+  values
+    .map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`)
+    .join(',');
+
 export default function CampaignMonitor() {
   const [workflows, setWorkflows] = useState([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
@@ -16,7 +23,9 @@ export default function CampaignMonitor() {
 
   useEffect(() => {
     if (selectedWorkflow) {
-      fetchAnalytics(selectedWorkflow._id);
+      fetchAnalytics(getWorkflowId(selectedWorkflow));
+    } else {
+      setAnalytics(null);
     }
   }, [selectedWorkflow]);
 
@@ -26,22 +35,37 @@ export default function CampaignMonitor() {
       const data = await workflowsService.getAll();
       const workflowList = Array.isArray(data) ? data : data?.workflows || [];
       setWorkflows(workflowList);
+      setError(null);
+
       if (workflowList.length > 0) {
         setSelectedWorkflow(workflowList[0]);
+      } else {
+        setSelectedWorkflow(null);
       }
     } catch (err) {
       console.error('Failed to fetch workflows:', err);
       // Fallback to mock data for demo
-      setWorkflows(mockCampaigns.map(c => ({ ...c, _id: c.id })));
-      setSelectedWorkflow(mockCampaigns[0]);
+      const fallbackList = mockCampaigns.map((campaign) => ({ ...campaign, _id: campaign.id }));
+      setWorkflows(fallbackList);
+      setSelectedWorkflow(fallbackList[0] || null);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchAnalytics = async (workflowId) => {
+    if (!workflowId) {
+      setAnalytics(null);
+      return;
+    }
+
+    if (!isMongoObjectId(workflowId)) {
+      setAnalytics(null);
+      return;
+    }
+
     try {
-      const data = await analyticsService.getCampaignAnalytics();
+      const data = await analyticsService.getCampaignAnalytics(workflowId);
       setAnalytics(data);
     } catch (err) {
       console.error('Failed to fetch analytics:', err);
@@ -50,13 +74,29 @@ export default function CampaignMonitor() {
   };
 
   const handleStatusChange = async (id, newStatus) => {
-    try {
-      await workflowsService.update(id, { status: newStatus });
-      setWorkflows(workflows.map(w => 
-        (w._id || w.id) === id ? { ...w, status: newStatus } : w
+    if (!id) return;
+
+    if (!isMongoObjectId(id)) {
+      setWorkflows(workflows.map((workflow) =>
+        getWorkflowId(workflow) === id ? { ...workflow, status: newStatus } : workflow
       ));
-      if (selectedWorkflow && (selectedWorkflow._id || selectedWorkflow.id) === id) {
+
+      if (selectedWorkflow && getWorkflowId(selectedWorkflow) === id) {
         setSelectedWorkflow({ ...selectedWorkflow, status: newStatus });
+      }
+      return;
+    }
+
+    try {
+      const response = await workflowsService.update(id, { status: newStatus });
+      const persistedStatus = response?.workflow?.status || newStatus;
+
+      setWorkflows(workflows.map((workflow) =>
+        getWorkflowId(workflow) === id ? { ...workflow, status: persistedStatus } : workflow
+      ));
+
+      if (selectedWorkflow && getWorkflowId(selectedWorkflow) === id) {
+        setSelectedWorkflow({ ...selectedWorkflow, status: persistedStatus });
       }
     } catch (err) {
       console.error('Failed to update status:', err);
@@ -95,6 +135,60 @@ export default function CampaignMonitor() {
 
   const metrics = selectedWorkflow ? getMetrics() : { leads: 0, sent: 0, opened: 0, rate: '0%' };
 
+  const handleDownloadReport = () => {
+    if (!selectedWorkflow) {
+      setError('Select a campaign before downloading a report.');
+      return;
+    }
+
+    try {
+      const generatedAt = new Date();
+      const workflowName = selectedWorkflow.name || 'Campaign';
+      const reportRows = [
+        ['Campaign Report'],
+        ['Generated At', generatedAt.toISOString()],
+        ['Campaign Name', workflowName],
+        ['Campaign ID', getWorkflowId(selectedWorkflow)],
+        ['Status', selectedWorkflow.status || 'draft'],
+        ['Created', selectedWorkflow.createdAt || selectedWorkflow.created || 'N/A'],
+        [],
+        ['Metric', 'Value'],
+        ['Total Leads', metrics.leads],
+        ['Emails Sent', metrics.sent],
+        ['Replies', metrics.opened],
+        ['Response Rate', metrics.rate],
+        ['Conversions', analytics?.conversions ?? Math.floor(metrics.opened * 0.3)],
+        ['Average Lead Score', analytics?.averageLeadScorePct != null ? `${analytics.averageLeadScorePct}%` : 'N/A'],
+        [],
+        ['Workflow Runs', 'Count'],
+        ['Running', analytics?.workflowRuns?.running ?? 0],
+        ['Completed', analytics?.workflowRuns?.completed ?? 0],
+        ['Failed', analytics?.workflowRuns?.failed ?? 0],
+      ];
+
+      const csvContent = reportRows.map((row) => toCsvLine(row)).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      const safeName = workflowName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'campaign';
+
+      link.href = url;
+      link.setAttribute('download', `${safeName}-report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to download report:', err);
+      setError('Failed to download report. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -132,10 +226,10 @@ export default function CampaignMonitor() {
             ) : workflows.length > 0 ? (
               workflows.map((workflow) => (
                 <button
-                  key={workflow._id || workflow.id}
+                  key={getWorkflowId(workflow)}
                   onClick={() => setSelectedWorkflow(workflow)}
                   className={`w-full text-left p-4 border-b border-border-subtle transition ${
-                    selectedWorkflow && (selectedWorkflow._id || selectedWorkflow.id) === (workflow._id || workflow.id)
+                    selectedWorkflow && getWorkflowId(selectedWorkflow) === getWorkflowId(workflow)
                       ? 'bg-accent-soft border-l-4 border-l-accent'
                       : 'hover:bg-bg-card-hover'
                   }`}
@@ -177,7 +271,7 @@ export default function CampaignMonitor() {
                   </div>
                   <select
                     value={selectedWorkflow.status || 'draft'}
-                    onChange={(e) => handleStatusChange(selectedWorkflow._id || selectedWorkflow.id, e.target.value)}
+                    onChange={(e) => handleStatusChange(getWorkflowId(selectedWorkflow), e.target.value)}
                     className="px-3 py-1 bg-bg-card-hover border border-border-card rounded text-text-primary text-sm"
                   >
                     <option value="draft">Draft</option>
@@ -261,21 +355,25 @@ export default function CampaignMonitor() {
               {/* Actions */}
               <div className="flex gap-3">
                 <button 
-                  onClick={() => window.location.href = `/workflows?id=${selectedWorkflow._id || selectedWorkflow.id}`}
+                  onClick={() => window.location.href = `/workflows?id=${getWorkflowId(selectedWorkflow)}`}
                   className="flex-1 px-4 py-2 bg-bg-card-hover hover:bg-border-strong text-text-primary font-semibold rounded-lg transition border border-border-card"
                 >
                   Edit Workflow
                 </button>
-                <button className="flex-1 px-4 py-2 bg-bg-card-hover hover:bg-border-strong text-text-primary font-semibold rounded-lg transition border border-border-card">
+                <button
+                  onClick={handleDownloadReport}
+                  className="flex-1 px-4 py-2 bg-bg-card-hover hover:bg-border-strong text-text-primary font-semibold rounded-lg transition border border-border-card"
+                >
                   Download Report
                 </button>
                 <button 
                   onClick={async () => {
                     try {
-                      const newWorkflow = await workflowsService.create({
+                      await workflowsService.create({
                         name: `${selectedWorkflow.name} (Copy)`,
                         nodes: selectedWorkflow.nodes,
                         edges: selectedWorkflow.edges,
+                        status: selectedWorkflow.status || 'draft',
                       });
                       fetchWorkflows();
                     } catch (err) {
