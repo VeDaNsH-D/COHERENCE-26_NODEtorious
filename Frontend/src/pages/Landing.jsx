@@ -30,18 +30,23 @@ const overviewStats = [
   { value: '25', label: 'Years of Work' },
 ];
 
+const heroProof = ['+37% reply rate', '2.4x pipeline velocity', 'SOC 2 ready architecture'];
+
 const serviceCards = [
   {
     title: 'AI-Powered Automation',
     text: 'Orchestrate multi-step outreach with adaptive logic and role-aware message tuning.',
+    image: '/landing/scout-service-automation.svg',
   },
   {
     title: 'Data-Driven Insights',
     text: 'Track behavioral signals and campaign quality metrics to improve every sequence.',
+    image: '/landing/scout-service-insights.svg',
   },
   {
     title: 'Adaptive Campaign Control',
     text: 'Balance send velocity, inbox health, and follow-up cadence without manual effort.',
+    image: '/landing/scout-service-control.svg',
   },
 ];
 
@@ -105,6 +110,10 @@ const testimonials = [
 ];
 
 const footerNav = ['About', 'Service', 'Tools', 'Contact'];
+const heroVisual = '/landing/scout-hero-illustration.svg';
+const aboutVisual = '/landing/scout-about-orb-illustration.svg';
+const featureVisual = '/landing/scout-feature-orb-illustration.svg';
+const workflowVisual = '/landing/scout-workflow-banner.svg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -148,7 +157,10 @@ function Landing() {
             transition={{ duration: 0.8 }}
           >
             <p className="venti-kicker">Boutique intelligence, built for modern growth teams</p>
-            <h1>Supercharge Your Business With AI That Works Like a Charm.</h1>
+            <h1>
+              Supercharge Your Business With <span className="venti-accent-word">AI</span> That Works Like
+              a Charm.
+            </h1>
             <p>
               Orchestrate outreach, personalize at scale, and turn every campaign into a reliable growth
               engine.
@@ -163,6 +175,12 @@ function Landing() {
                 <ArrowRight size={15} />
               </a>
             </div>
+
+            <div className="venti-proof-row" aria-label="Performance highlights">
+              {heroProof.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
           </motion.div>
 
           <motion.div
@@ -173,12 +191,13 @@ function Landing() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.9, delay: 0.1 }}
           >
+            <img
+              src={heroVisual}
+              alt="Scout platform preview"
+              className="venti-hero-image"
+              loading="eager"
+            />
             <div className="venti-hero-aurora" aria-hidden="true" />
-            <div className="venti-coil" aria-hidden="true">
-              {Array.from({ length: 7 }).map((_, idx) => (
-                <span key={`coil-${idx}`} className="venti-loop" style={{ '--idx': idx }} />
-              ))}
-            </div>
 
             <div className="venti-floating-card venti-floating-card-left">
               <span className="venti-card-dot" />
@@ -228,7 +247,7 @@ function Landing() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.85, delay: 0.12 }}
           >
-            <div className="venti-orb" aria-hidden="true" />
+            <img src={aboutVisual} alt="Scout product visual" className="venti-orb-image" loading="lazy" />
           </motion.div>
         </section>
 
@@ -273,7 +292,9 @@ function Landing() {
                 viewport={{ once: true, amount: 0.35 }}
                 transition={{ duration: 0.75, delay: idx * 0.09 }}
               >
-                <div className="venti-service-art" aria-hidden="true" />
+                <div className="venti-service-art">
+                  <img src={card.image} alt={`${card.title} illustration`} loading="lazy" />
+                </div>
                 <h3>{card.title}</h3>
                 <p>{card.text}</p>
               </motion.article>
@@ -324,8 +345,9 @@ function Landing() {
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.9, delay: 0.08 }}
-                aria-hidden="true"
-              />
+              >
+                <img src={featureVisual} alt="Scout AI feature visual" className="venti-orb-image" loading="lazy" />
+              </motion.div>
 
               <div className="venti-why-list">
                 {whyPoints.slice(2).map((point, idx) => {
@@ -384,7 +406,7 @@ function Landing() {
         </section>
 
         <section className="venti-wave" aria-label="Product story video teaser">
-          <div className="venti-wave-ribbon" aria-hidden="true" />
+          <img src={workflowVisual} alt="Scout workflow visual" className="venti-wave-image" loading="lazy" />
           <button type="button" className="venti-play-btn" aria-label="Play overview video">
             <Play size={30} fill="currentColor" />
           </button>

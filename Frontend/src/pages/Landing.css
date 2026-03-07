@@ -50,6 +50,7 @@
 }
 
 .venti-nav {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,7 +60,28 @@
   border: 1px solid var(--venti-border);
   background: linear-gradient(160deg, rgba(37, 21, 9, 0.88), rgba(16, 10, 5, 0.92));
   backdrop-filter: blur(14px);
+  overflow: hidden;
   box-shadow: 0 18px 54px rgba(0, 0, 0, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.venti-nav::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(255, 204, 133, 0.12), rgba(255, 121, 30, 0.06), rgba(255, 204, 133, 0.12));
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.venti-nav:hover {
+  border-color: rgba(255, 220, 172, 0.36);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.5);
+}
+
+.venti-nav:hover::before {
+  opacity: 1;
 }
 
 .venti-brand {
@@ -109,23 +131,27 @@
   text-decoration: none;
   font-weight: 600;
   box-shadow: 0 0 24px rgba(255, 138, 42, 0.42);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .venti-login-btn:hover {
   transform: translateY(-1px);
+  border-color: rgba(255, 228, 194, 0.56);
   box-shadow: 0 0 34px rgba(255, 151, 64, 0.62);
 }
 
 .venti-hero {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
-  padding-top: 3.9rem;
+  gap: 2.4rem;
+  padding-top: clamp(2.4rem, 6vw, 4.1rem);
 }
 
 .venti-hero-copy {
-  max-width: 560px;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .venti-kicker {
@@ -139,32 +165,65 @@
   text-transform: uppercase;
   letter-spacing: 0.16em;
   padding: 0.5rem 0.85rem;
+  max-width: 100%;
+  line-height: 1.45;
   margin-bottom: 1rem;
+  backdrop-filter: blur(5px);
 }
 
 .venti-hero-copy h1 {
   margin: 0;
   font-family: 'Syne', 'Sora', sans-serif;
-  font-size: clamp(2.1rem, 5vw, 3.8rem);
+  font-size: clamp(2.3rem, 6vw, 5rem);
   line-height: 1.08;
   letter-spacing: -0.03em;
+  max-width: 12ch;
   text-wrap: balance;
 }
 
-.venti-hero-copy p {
+.venti-accent-word {
+  background: linear-gradient(120deg, #ffe8bf 0%, #ffce82 38%, #ff8f38 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 165, 70, 0.28));
+}
+
+.venti-hero-copy p:not(.venti-kicker) {
   margin: 1.05rem 0 0;
-  font-size: 1rem;
+  font-size: 1.03rem;
   line-height: 1.75;
-  color: var(--venti-text-soft);
+  color: rgba(255, 223, 189, 0.8);
   max-width: 50ch;
 }
 
 .venti-hero-actions {
-  margin-top: 1.8rem;
+  margin-top: 1.65rem;
   display: flex;
   align-items: center;
   gap: 0.8rem;
   flex-wrap: wrap;
+}
+
+.venti-proof-row {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.venti-proof-row span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 220, 174, 0.25);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 224, 188, 0.84);
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.42rem 0.7rem;
 }
 
 .venti-btn {
@@ -178,6 +237,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  border: 1px solid transparent;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
@@ -187,8 +247,13 @@
 
 .venti-btn-primary {
   color: #251005;
+  border-color: rgba(255, 228, 188, 0.35);
   background: linear-gradient(125deg, #ffe2ad 0%, #ffbf6a 35%, #ff7a18 100%);
   box-shadow: 0 0 28px rgba(255, 140, 41, 0.52);
+}
+
+.venti-btn-primary:hover {
+  box-shadow: 0 0 38px rgba(255, 140, 41, 0.68);
 }
 
 .venti-btn-ghost {
@@ -197,23 +262,52 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.venti-btn-ghost:hover {
+  border-color: rgba(255, 220, 172, 0.5);
+  background: rgba(255, 255, 255, 0.09);
+}
+
 .venti-hero-visual {
   position: relative;
+  isolation: isolate;
   min-height: 370px;
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   background: linear-gradient(170deg, rgba(49, 29, 14, 0.84), rgba(17, 10, 5, 0.9));
   overflow: hidden;
   box-shadow: 0 38px 74px rgba(0, 0, 0, 0.52);
+  transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease;
+}
+
+.venti-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+  transform: scale(1.04);
+  filter: saturate(1.08) contrast(1.06);
+  transition: transform 0.6s ease, filter 0.6s ease;
+}
+
+.venti-hero-visual:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 216, 166, 0.34);
+  box-shadow: 0 44px 82px rgba(0, 0, 0, 0.56);
+}
+
+.venti-hero-visual:hover .venti-hero-image {
+  transform: scale(1.09);
+  filter: saturate(1.16) contrast(1.08);
 }
 
 .venti-hero-aurora {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 22%, rgba(255, 190, 94, 0.3), transparent 34%),
-    radial-gradient(circle at 58% 72%, rgba(255, 126, 33, 0.36), transparent 32%),
-    radial-gradient(circle at 20% 68%, rgba(203, 114, 40, 0.28), transparent 34%);
+    radial-gradient(circle at 48% 8%, rgba(255, 196, 118, 0.26), transparent 32%),
+    linear-gradient(180deg, rgba(12, 6, 2, 0.12) 0%, rgba(12, 6, 2, 0.66) 70%, rgba(12, 6, 2, 0.82) 100%);
 }
 
 .venti-coil {
@@ -254,7 +348,9 @@
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: linear-gradient(140deg, rgba(58, 31, 11, 0.86), rgba(19, 12, 6, 0.9));
+  backdrop-filter: blur(8px);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  transition: transform 0.35s ease, border-color 0.35s ease;
 }
 
 .venti-floating-card p {
@@ -288,11 +384,22 @@
   box-shadow: 0 0 14px rgba(255, 193, 94, 0.92);
 }
 
+.venti-hero-visual:hover .venti-floating-card-left {
+  transform: translateY(-4px);
+  border-color: rgba(255, 222, 182, 0.38);
+}
+
+.venti-hero-visual:hover .venti-floating-card-right {
+  transform: translateY(3px);
+  border-color: rgba(255, 222, 182, 0.38);
+}
+
 .venti-partners {
   margin-top: 1.4rem;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(6px);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.8rem;
@@ -304,6 +411,7 @@
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.14em;
+  font-weight: 600;
   font-size: 0.72rem;
 }
 
@@ -350,20 +458,27 @@
   place-items: center;
 }
 
-.venti-orb,
+.venti-orb-wrap,
 .venti-orb-hero {
   width: min(320px, 64vw);
   aspect-ratio: 1;
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 25%, #ffd885 0%, transparent 34%),
-    radial-gradient(circle at 70% 72%, #ff8a2a 0%, transparent 32%),
-    conic-gradient(from 20deg, #ffd36f 0%, #ffb347 25%, #ff7a18 50%, #d26a1f 75%, #ffd36f 100%);
+  overflow: hidden;
+  border: 1px solid rgba(255, 205, 151, 0.25);
+  background: rgba(55, 30, 10, 0.7);
   box-shadow:
-    inset 0 0 46px rgba(255, 255, 255, 0.2),
-    0 0 64px rgba(255, 141, 46, 0.5),
-    0 0 86px rgba(255, 194, 95, 0.34);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 64px rgba(255, 141, 46, 0.35),
+    0 0 86px rgba(255, 194, 95, 0.2);
   animation: venti-pulse 8.5s ease-in-out infinite;
+}
+
+.venti-orb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%;
+  filter: saturate(1.08) contrast(1.05);
 }
 
 .venti-stats {
@@ -378,6 +493,13 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.02);
   padding: 1.1rem 1rem;
+  transition: transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+}
+
+.venti-stat-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 220, 172, 0.3);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .venti-stat-item strong {
@@ -403,6 +525,7 @@
 
 .venti-section-title {
   margin-bottom: 1.35rem;
+  text-align: left;
 }
 
 .venti-service-grid {
@@ -416,16 +539,36 @@
   border: 1px solid rgba(255, 255, 255, 0.11);
   background: var(--venti-card);
   padding: 1rem;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.venti-service-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 220, 172, 0.35);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.32);
 }
 
 .venti-service-art {
   border-radius: 18px;
   height: 170px;
-  background:
-    radial-gradient(circle at 25% 26%, rgba(255, 205, 109, 0.86), transparent 28%),
-    radial-gradient(circle at 72% 72%, rgba(255, 124, 29, 0.82), transparent 34%),
-    radial-gradient(circle at 50% 54%, rgba(214, 119, 43, 0.82), rgba(49, 26, 11, 0.78) 56%);
-  box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  border: 1px solid rgba(255, 220, 173, 0.16);
+  background: rgba(24, 13, 6, 0.8);
+  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.venti-service-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  filter: saturate(1.1) contrast(1.04);
+  transition: transform 0.45s ease, filter 0.45s ease;
+}
+
+.venti-service-card:hover .venti-service-art img {
+  transform: scale(1.12);
+  filter: saturate(1.2) contrast(1.08);
 }
 
 .venti-service-card h3 {
@@ -472,6 +615,13 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(29, 16, 8, 0.7);
   padding: 1rem;
+  transition: transform 0.28s ease, border-color 0.28s ease, background 0.28s ease;
+}
+
+.venti-why-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 216, 165, 0.35);
+  background: rgba(38, 20, 9, 0.78);
 }
 
 .venti-why-card svg {
@@ -505,6 +655,12 @@
   border: 1px solid rgba(255, 255, 255, 0.13);
   background: var(--venti-card-alt);
   padding: 1rem;
+  transition: transform 0.28s ease, border-color 0.28s ease;
+}
+
+.venti-process-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 217, 168, 0.34);
 }
 
 .venti-process-card span {
@@ -536,26 +692,42 @@
   letter-spacing: 0.13em;
   font-size: 0.62rem;
   font-weight: 700;
+  transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+}
+
+.venti-process-card button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 221, 177, 0.52);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .venti-wave {
   position: relative;
   z-index: 2;
   margin-top: 4rem;
-  min-height: 220px;
+  min-height: 250px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
-.venti-wave-ribbon {
+.venti-wave-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 73%;
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.venti-wave::after {
+  content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 199, 112, 0.32), transparent 24%),
-    conic-gradient(from 80deg, rgba(255, 191, 92, 0.48), rgba(255, 132, 31, 0.55), rgba(255, 214, 130, 0.36), rgba(255, 191, 92, 0.48));
-  filter: saturate(135%) blur(24px);
-  transform: scale(1.15) rotate(-4deg);
+    radial-gradient(circle at 50% 45%, rgba(255, 178, 74, 0.23), transparent 30%),
+    linear-gradient(180deg, rgba(10, 5, 2, 0.24) 0%, rgba(10, 5, 2, 0.62) 100%);
 }
 
 .venti-play-btn {
@@ -572,6 +744,12 @@
   display: grid;
   place-items: center;
   box-shadow: 0 0 38px rgba(255, 139, 42, 0.58);
+  transition: transform 0.26s ease, box-shadow 0.26s ease;
+}
+
+.venti-wave:hover .venti-play-btn {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 0 52px rgba(255, 139, 42, 0.72);
 }
 
 .venti-testimonial-title {
@@ -591,6 +769,12 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: linear-gradient(160deg, rgba(70, 37, 11, 0.68), rgba(20, 11, 6, 0.92));
   padding: 1rem;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.venti-testimonial-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 218, 169, 0.34);
 }
 
 .venti-stars {
@@ -647,6 +831,12 @@
   font-size: 0.85rem;
 }
 
+.venti-subscribe input:focus {
+  outline: none;
+  border-color: rgba(255, 220, 173, 0.48);
+  box-shadow: 0 0 0 3px rgba(255, 174, 89, 0.12);
+}
+
 .venti-subscribe button {
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
@@ -671,6 +861,11 @@
   text-transform: uppercase;
   letter-spacing: 0.13em;
   font-size: 0.7rem;
+  transition: color 0.22s ease;
+}
+
+.venti-footer-nav a:hover {
+  color: rgba(255, 239, 220, 0.98);
 }
 
 .venti-footer-main {
@@ -757,7 +952,8 @@
   .venti-hero {
     grid-template-columns: 1.05fr 0.95fr;
     align-items: center;
-    min-height: 84vh;
+    column-gap: clamp(1.4rem, 3vw, 2.6rem);
+    min-height: clamp(560px, 72vh, 760px);
   }
 
   .venti-about {
@@ -816,6 +1012,34 @@
 
   .venti-hero {
     padding-top: 2.6rem;
+  }
+
+  .venti-kicker {
+    font-size: 0.63rem;
+    letter-spacing: 0.12em;
+    padding: 0.42rem 0.72rem;
+  }
+
+  .venti-hero-copy h1 {
+    font-size: clamp(2.2rem, 12vw, 3.9rem);
+    line-height: 1.06;
+    max-width: 10.5ch;
+  }
+
+  .venti-hero-copy p:not(.venti-kicker) {
+    font-size: 0.98rem;
+    line-height: 1.68;
+  }
+
+  .venti-proof-row {
+    margin-top: 1rem;
+    gap: 0.45rem;
+  }
+
+  .venti-proof-row span {
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+    padding: 0.38rem 0.6rem;
   }
 
   .venti-hero-visual {
